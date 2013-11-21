@@ -1,0 +1,14 @@
+{
+    "name": "blurgroup/quahog",
+    "description": "A PHP client library for ClamAV clamd daemon",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Jonjo McKay",
+            "email": "jonjo@blurgroup.com"
+        }
+    ],
+    "require": {
+        "clue/socket-raw": "0.1.*"
+    }
+}

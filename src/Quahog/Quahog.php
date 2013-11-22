@@ -159,6 +159,6 @@ class Quahog
 
         $this->_socket->close();
 
-        return $result;
+        return trim($result);
     }
 } 

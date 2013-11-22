@@ -8,7 +8,11 @@
             "email": "jonjo@blurgroup.com"
         }
     ],
+    "autoload": {
+        "psr-0": {"Quahog": "src/"}
+    },
     "require": {
+        "php": ">=5.3",
         "clue/socket-raw": "0.1.*"
     }
 }

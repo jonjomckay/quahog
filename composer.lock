@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "29f3e6e9544c6b54e13a77c74ede3f02",
+    "hash": "37cc81c3daf8e18c20cef60591f053b8",
     "packages": [
         {
             "name": "clue/socket-raw",
@@ -62,9 +62,9 @@
     "stability-flags": [
 
     ],
-    "platform": [
-
-    ],
+    "platform": {
+        "php": ">=5.3"
+    },
     "platform-dev": [
 
     ]

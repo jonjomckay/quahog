@@ -2,6 +2,7 @@
 namespace Quahog;
 
 
+use Quahog\Exception\ConnectionException;
 use Socket\Raw\Factory;
 
 class Quahog
@@ -15,6 +16,7 @@ class Quahog
     /**
      * @param int $socketType
      * @param string $location
+     * @throws Exception\ConnectionException
      */
     public function __construct($socketType = self::UNIX_SOCKET, $location)
     {
@@ -30,17 +32,26 @@ class Quahog
                 break;
         }
 
-        $this->_socket = $factory->createClient($location);
+        try {
+            $this->_socket = $factory->createClient($location);
+        } catch (\Exception $e) {
+            throw new ConnectionException('Could not connect to to socket at: ' . $location);
+        }
     }
 
     /**
-     * @return string
+     * @throws Exception\ConnectionException
+     * @return bool
      */
     public function ping()
     {
         $this->_sendCommand('PING');
 
-        return $this->_receiveResponse();
+        if ($this->_receiveResponse() === 'PONG') {
+            return true;
+        }
+
+        throw new ConnectionException('Could not ping clamd');
     }
 
     /**
@@ -54,8 +65,6 @@ class Quahog
     }
 
     /**
-     * TODO: Doesn't work - need to find out why
-     *
      * @return string
      */
     public function stats()
@@ -120,6 +129,8 @@ class Quahog
 
     /**
      * @param $stream
+     * @param int $maxChunkSize
+     * @return string
      */
     public function scanStream($stream, $maxChunkSize = 1024)
     {

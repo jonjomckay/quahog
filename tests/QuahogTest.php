@@ -81,7 +81,7 @@ class QuahogTest extends PHPUnit_Framework_TestCase
 
     public function testScanStream()
     {
-        $stream = file_get_contents('/tmp/EICAR');
+        $stream = file_get_contents('/tmp/quahog/EICAR');
 
         $result = $this->quahog->scanStream($stream);
 

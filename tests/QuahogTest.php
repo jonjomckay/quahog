@@ -34,7 +34,7 @@ class QuahogTest extends PHPUnit_Framework_TestCase
     {
         $result = $this->quahog->ping();
 
-        $this->assertSame('PONG', $result);
+        $this->assertTrue($result);
     }
 
     public function testVersion()
@@ -69,7 +69,7 @@ class QuahogTest extends PHPUnit_Framework_TestCase
     {
         $result = $this->quahog->multiscanFile('/tmp/quahog');
 
-        $this->assertStringStartsWith('/tmp/quahog/EICAR: Eicar-Test-Signature FOUND', $result);
+        $this->assertTrue((strpos($result, 'Eicar-Test-Signature FOUND') !== false), $result);
     }
 
     public function testContScan()

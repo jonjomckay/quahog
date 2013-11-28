@@ -8,29 +8,15 @@ use Socket\Raw\Factory;
 class Quahog
 {
 
-    const UNIX_SOCKET = 0;
-    const NETWORK_SOCKET = 1;
-
     private $_socket;
 
     /**
-     * @param int $socketType
      * @param string $location
      * @throws Exception\ConnectionException
      */
-    public function __construct($socketType = self::UNIX_SOCKET, $location)
+    public function __construct($location)
     {
         $factory = new Factory();
-
-        switch ($socketType) {
-            case self::UNIX_SOCKET:
-                // TODO: Need to work this out
-                break;
-            case self::NETWORK_SOCKET:
-                break;
-            default:
-                break;
-        }
 
         try {
             $this->_socket = $factory->createClient($location);

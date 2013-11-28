@@ -37,7 +37,7 @@ class QuahogTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('Quahog\Exception\ConnectionException');
 
-        $quahog = new Quahog('not-a-real-clam-instance');
+        new Quahog('not-a-real-clam-instance');
     }
 
     public function testPingOK()

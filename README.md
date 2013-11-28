@@ -22,11 +22,32 @@ It is recommended to install Quahog through [composer](http://getcomposer.org).
 ```php
 $quahog = new \Quahog\Quahog();
 
-// Scanning a file
+// Scan a file
 $result = $quahog->scanFile('/tmp/virusfile');
 
-// $result will contain "/tmp/virusfile: OK" if clean
-// or "/tmp/virusfile: Virus-Information" if infected
+// Scan a file or directory recursively
+$result = $quahog->contScan('/tmp/virusdirectory');
+
+// Scan a file or directory recursively using multiple threads
+$result = $quahog->multiscanFile('/tmp/virusdirectory');
+
+// Scan a stream, and optionally pass the maximum chunk size in bytes
+$result = $quahog->scanStream(file_get_contents('/tmp/virusfile'), 1024);
+
+// Ping clamd
+$result = $quahog->ping();
+
+// Get ClamAV version details
+$result = $quahog->version();
+
+// View statistics about the ClamAV scan queue
+$result = $quahog->stats();
+
+// Reload the virus database
+$quahog->reload();
+
+// Shutdown clamd cleanly
+$quahog->shutdown();
 ```
 
 ## Testing

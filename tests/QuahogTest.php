@@ -3,6 +3,9 @@ use Quahog\Quahog;
 
 include_once __DIR__ . '/../vendor/autoload.php';
 
+/**
+ * Class QuahogTest
+ */
 class QuahogTest extends PHPUnit_Framework_TestCase
 {
 

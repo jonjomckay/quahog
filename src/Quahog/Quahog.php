@@ -5,13 +5,22 @@ namespace Quahog;
 use Quahog\Exception\ConnectionException;
 use Socket\Raw\Factory;
 
+/**
+ * Class Quahog
+ * @package Quahog
+ */
 class Quahog
 {
 
+    /**
+     * @var \Socket\Raw\Socket
+     */
     private $_socket;
 
     /**
-     * @param string $location
+     * Instantiate a Quahog\Quahog instance
+     *
+     * @param string $location The hostname and port, or socket location to connect to clamd
      * @throws Exception\ConnectionException
      */
     public function __construct($location)
@@ -26,6 +35,8 @@ class Quahog
     }
 
     /**
+     * Ping clamd to see if we get a response
+     *
      * @throws Exception\ConnectionException
      * @return bool
      */
@@ -41,6 +52,8 @@ class Quahog
     }
 
     /**
+     * Retrieve the running ClamAV version information
+     *
      * @return string
      */
     public function version()
@@ -51,6 +64,8 @@ class Quahog
     }
 
     /**
+     * Fetch stats for the ClamAV scan queue
+     *
      * @return string
      */
     public function stats()
@@ -61,6 +76,8 @@ class Quahog
     }
 
     /**
+     * Reload the ClamAV virus definition database
+     *
      * @return string
      */
     public function reload()
@@ -71,6 +88,8 @@ class Quahog
     }
 
     /**
+     * Shutdown clamd cleanly
+     *
      * @return string
      */
     public function shutdown()
@@ -81,7 +100,9 @@ class Quahog
     }
 
     /**
-     * @param string $file
+     * Scan a single file
+     *
+     * @param string $file The location of the file to scan
      * @return string
      */
     public function scanFile($file)
@@ -92,7 +113,9 @@ class Quahog
     }
 
     /**
-     * @param string $file
+     * Scan a file or directory recursively using multiple threads
+     *
+     * @param string $file The location of the file or directory to scan
      * @return string
      */
     public function multiscanFile($file)
@@ -103,7 +126,9 @@ class Quahog
     }
 
     /**
-     * @param string $file
+     * Scan a file or directory recursively
+     *
+     * @param string $file The location of the file or directory to scan
      * @return string
      */
     public function contScan($file)
@@ -114,8 +139,10 @@ class Quahog
     }
 
     /**
-     * @param $stream
-     * @param int $maxChunkSize
+     * Scan a stream
+     *
+     * @param string $stream A file stream in string form
+     * @param int $maxChunkSize The maximum chunk size in bytes to send to clamd at a time
      * @return string
      */
     public function scanStream($stream, $maxChunkSize = 1024)
@@ -140,6 +167,8 @@ class Quahog
     }
 
     /**
+     * A wrapper to send a command to clamd
+     *
      * @param string $command
      */
     private function _sendCommand($command)
@@ -148,6 +177,8 @@ class Quahog
     }
 
     /**
+     * A wrapper to cleanly read a response from clamd
+     *
      * @return string
      */
     private function _receiveResponse()

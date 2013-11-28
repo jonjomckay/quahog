@@ -25,7 +25,8 @@ $quahog = new \Quahog\Quahog();
 // Scanning a file
 $result = $quahog->scanFile('/tmp/virusfile');
 
-// $result will contain "/tmp/virusfile: OK" if clean or "/tmp/virusfile: Virus-Information" if infected
+// $result will contain "/tmp/virusfile: OK" if clean
+// or "/tmp/virusfile: Virus-Information" if infected
 ```
 
 ## Testing

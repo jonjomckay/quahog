@@ -27,14 +27,37 @@ class QuahogTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->quahog = new Quahog(Quahog::NETWORK_SOCKET, '127.0.0.1:3311');
+        $this->quahog = new Quahog('127.0.0.1:3311');
     }
 
-    public function testPing()
+    public function testConstruct()
+    {
+        $this->setExpectedException('Quahog\Exception\ConnectionException');
+
+        $quahog = new Quahog('not-a-real-clam-instance');
+    }
+
+    public function testPingOK()
     {
         $result = $this->quahog->ping();
 
         $this->assertTrue($result);
+    }
+
+    public function testPingFail()
+    {
+        $quahogMock = $this->getMock('Quahog\Quahog', array('_receiveResponse'), array('127.0.0.1:3311'));
+        $quahogMock->expects($this->any())->method('_receiveResponse')->will($this->returnValue('NOPE'));
+
+        $reflection = new ReflectionClass('Quahog\Quahog');
+
+        $method = $reflection->getMethod('_receiveResponse');
+        $method->setAccessible(true);
+        $method->invoke($quahogMock);
+
+        $this->setExpectedException('Quahog\Exception\ConnectionException');
+
+        $quahogMock->ping();
     }
 
     public function testVersion()

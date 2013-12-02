@@ -1,6 +1,7 @@
 {
     "name": "blurgroup/quahog",
     "description": "A PHP client library for ClamAV clamd daemon",
+    "license": "MIT",
     "minimum-stability": "dev",
     "authors": [
         {

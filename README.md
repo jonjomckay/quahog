@@ -20,7 +20,7 @@ It is recommended to install Quahog through [composer](http://getcomposer.org).
 ## Usage
 
 ```php
-$quahog = new \Quahog\Quahog();
+$quahog = new \Quahog\Client();
 
 // Scan a file
 $result = $quahog->scanFile('/tmp/virusfile');

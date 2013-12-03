@@ -1,5 +1,5 @@
 <?php
-use Quahog\Quahog;
+use Quahog\Client;
 
 include_once __DIR__ . '/../vendor/autoload.php';
 
@@ -10,7 +10,7 @@ class QuahogTest extends PHPUnit_Framework_TestCase
 {
 
     /**
-     * @var \Quahog\Quahog
+     * @var \Quahog\Client
      */
     protected $quahog;
 
@@ -30,14 +30,14 @@ class QuahogTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->quahog = new Quahog('127.0.0.1:3311');
+        $this->quahog = new Client('127.0.0.1:3311');
     }
 
     public function testConstruct()
     {
         $this->setExpectedException('Quahog\Exception\ConnectionException');
 
-        new Quahog('not-a-real-clam-instance');
+        new Client('not-a-real-clam-instance');
     }
 
     public function testPingOK()
@@ -49,10 +49,10 @@ class QuahogTest extends PHPUnit_Framework_TestCase
 
     public function testPingFail()
     {
-        $quahogMock = $this->getMock('Quahog\Quahog', array('_receiveResponse'), array('127.0.0.1:3311'));
+        $quahogMock = $this->getMock('Quahog\Client', array('_receiveResponse'), array('127.0.0.1:3311'));
         $quahogMock->expects($this->any())->method('_receiveResponse')->will($this->returnValue('NOPE'));
 
-        $reflection = new ReflectionClass('Quahog\Quahog');
+        $reflection = new ReflectionClass('Quahog\Client');
 
         $method = $reflection->getMethod('_receiveResponse');
         $method->setAccessible(true);

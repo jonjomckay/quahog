@@ -1,15 +1,14 @@
 <?php
 namespace Quahog;
 
-
 use Quahog\Exception\ConnectionException;
 use Socket\Raw\Factory;
 
 /**
- * Class Quahog
+ * Class Client
  * @package Quahog
  */
-class Quahog
+class Client
 {
 
     /**
@@ -18,7 +17,7 @@ class Quahog
     private $_socket;
 
     /**
-     * Instantiate a Quahog\Quahog instance
+     * Instantiate a Quahog\Client instance
      *
      * @param string $location The hostname and port, or socket location to connect to clamd
      * @throws Exception\ConnectionException

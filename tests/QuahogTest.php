@@ -88,21 +88,22 @@ class QuahogTest extends PHPUnit_Framework_TestCase
     {
         $result = $this->quahog->scanFile('/tmp/quahog/EICAR');
 
-        $this->assertSame('/tmp/quahog/EICAR: Eicar-Test-Signature FOUND', $result);
+        $this->assertSame(array('/tmp/quahog/EICAR', 'Eicar-Test-Signature', 'FOUND'), $result);
     }
 
     public function testMultiscanFile()
     {
         $result = $this->quahog->multiscanFile('/tmp/quahog');
 
-        $this->assertTrue((strpos($result, 'Eicar-Test-Signature FOUND') !== false), $result);
+        $this->assertSame('Eicar-Test-Signature', $result[1]);
+        $this->assertSame('FOUND', $result[2]);
     }
 
     public function testContScan()
     {
         $result = $this->quahog->contScan('/tmp/quahog');
 
-        $this->assertStringStartsWith('/tmp/quahog/EICAR: Eicar-Test-Signature FOUND', $result);
+        $this->assertSame(array('/tmp/quahog/EICAR', 'Eicar-Test-Signature', 'FOUND'), $result);
     }
 
     public function testScanStream()
@@ -111,7 +112,7 @@ class QuahogTest extends PHPUnit_Framework_TestCase
 
         $result = $this->quahog->scanStream($stream);
 
-        $this->assertSame('stream: Eicar-Test-Signature FOUND', $result);
+        $this->assertSame(array('stream', 'Eicar-Test-Signature', 'FOUND'), $result);
     }
 
     public function testShutdown()

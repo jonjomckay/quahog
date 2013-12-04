@@ -108,7 +108,9 @@ class Client
     {
         $this->_sendCommand('SCAN ' . $file);
 
-        return $this->_receiveResponse();
+        $response = $this->_receiveResponse();
+
+        return $this->_parseResponse($response);
     }
 
     /**
@@ -121,7 +123,9 @@ class Client
     {
         $this->_sendCommand('MULTISCAN ' . $file);
 
-        return $this->_receiveResponse();
+        $response = $this->_receiveResponse();
+
+        return $this->_parseResponse($response);
     }
 
     /**
@@ -134,7 +138,9 @@ class Client
     {
         $this->_sendCommand('CONTSCAN ' . $file);
 
-        return $this->_receiveResponse();
+        $response = $this->_receiveResponse();
+
+        return $this->_parseResponse($response);
     }
 
     /**
@@ -162,7 +168,9 @@ class Client
 
         $this->_socket->send(pack('N', 0), MSG_DONTROUTE);
 
-        return $this->_receiveResponse();
+        $response = $this->_receiveResponse();
+
+        return $this->_parseResponse($response);
     }
 
     /**
@@ -187,5 +195,29 @@ class Client
         $this->_socket->close();
 
         return trim($result);
+    }
+
+    /**
+     * Parse the received response into a structured array ($filename, $reason, $status)
+     *
+     * @param string $response
+     * @return array
+     */
+    private function _parseResponse($response)
+    {
+        $splitResponse = explode(': ', $response);
+
+        $filename = $splitResponse[0];
+        $message = $splitResponse[1];
+
+        if ($message === 'OK') {
+            return array($filename, '', 'OK');
+        } else {
+            $parts = explode(' ', $message);
+            $status = array_pop($parts);
+            $reason = implode(' ', $parts);
+
+            return array($filename, $reason, $status);
+        }
     }
 } 

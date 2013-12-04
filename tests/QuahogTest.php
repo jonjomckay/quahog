@@ -88,22 +88,22 @@ class QuahogTest extends PHPUnit_Framework_TestCase
     {
         $result = $this->quahog->scanFile('/tmp/quahog/EICAR');
 
-        $this->assertSame(array('/tmp/quahog/EICAR', 'Eicar-Test-Signature', 'FOUND'), $result);
+        $this->assertSame(array('filename' => '/tmp/quahog/EICAR', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'), $result);
     }
 
     public function testMultiscanFile()
     {
         $result = $this->quahog->multiscanFile('/tmp/quahog');
 
-        $this->assertSame('Eicar-Test-Signature', $result[1]);
-        $this->assertSame('FOUND', $result[2]);
+        $this->assertSame('Eicar-Test-Signature', $result['reason']);
+        $this->assertSame('FOUND', $result['status']);
     }
 
     public function testContScan()
     {
         $result = $this->quahog->contScan('/tmp/quahog');
 
-        $this->assertSame(array('/tmp/quahog/EICAR', 'Eicar-Test-Signature', 'FOUND'), $result);
+        $this->assertSame(array('filename' => '/tmp/quahog/EICAR', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'), $result);
     }
 
     public function testScanStream()
@@ -112,7 +112,7 @@ class QuahogTest extends PHPUnit_Framework_TestCase
 
         $result = $this->quahog->scanStream($stream);
 
-        $this->assertSame(array('stream', 'Eicar-Test-Signature', 'FOUND'), $result);
+        $this->assertSame(array('filename' => 'stream', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'), $result);
     }
 
     public function testShutdown()

@@ -211,13 +211,13 @@ class Client
         $message = $splitResponse[1];
 
         if ($message === 'OK') {
-            return array($filename, '', 'OK');
+            return array('filename' => $filename, 'reason' => null, 'status' => 'OK');
         } else {
             $parts = explode(' ', $message);
             $status = array_pop($parts);
             $reason = implode(' ', $parts);
 
-            return array($filename, $reason, $status);
+            return array('filename' => $filename, 'reason' => $reason, 'status' => $status);
         }
     }
 } 

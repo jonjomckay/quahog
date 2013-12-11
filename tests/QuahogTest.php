@@ -49,7 +49,7 @@ class QuahogTest extends PHPUnit_Framework_TestCase
 
     public function testPingFail()
     {
-        $quahogMock = $this->getMock('Quahog\Client', array('_receiveResponse'), array('127.0.0.1:3311'));
+        $quahogMock = $this->getMock('Quahog\Client', array('_receiveResponse'), array('unix:///var/run/clamav/clamd.ctl'));
         $quahogMock->expects($this->any())->method('_receiveResponse')->will($this->returnValue('NOPE'));
 
         $reflection = new ReflectionClass('Quahog\Client');

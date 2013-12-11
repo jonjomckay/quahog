@@ -30,7 +30,7 @@ class QuahogTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->quahog = new Client('127.0.0.1:3311');
+        $this->quahog = new Client('unix:///var/run/clamav/clamd.ctl');
     }
 
     public function testConstruct()

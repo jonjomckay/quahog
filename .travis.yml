@@ -6,6 +6,9 @@ before_install:
   - sudo freshclam
   - sudo /etc/init.d/clamav-daemon start
 
+install:
+  - composer install
+
 php:
   - 5.3
   - 5.4

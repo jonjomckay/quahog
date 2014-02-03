@@ -22,7 +22,15 @@ It is recommended to install Quahog through [composer](http://getcomposer.org).
 ## Usage
 
 ```php
-$quahog = new \Quahog\Client();
+// Create a new socket instance in PHP 5.3
+$factory = new Factory();
+$socket = $factory->createClient('unix:///var/run/clamav/clamd.ctl');
+
+// Create a new socket instance in PHP >=5.4
+$socket = (new Factory())->createClient('unix:///var/run/clamav/clamd.ctl');
+
+// Create a new instance of the Client
+$quahog = new \Quahog\Client($socket);
 
 // Scan a file
 $result = $quahog->scanFile('/tmp/virusfile');

@@ -2,7 +2,7 @@
 namespace Quahog;
 
 use Quahog\Exception\ConnectionException;
-use Socket\Raw\Factory;
+use Socket\Raw\Socket;
 
 /**
  * Class Client
@@ -12,25 +12,18 @@ class Client
 {
 
     /**
-     * @var \Socket\Raw\Socket
+     * @var Socket
      */
-    private $_socket;
+    private $socket;
 
     /**
      * Instantiate a Quahog\Client instance
      *
-     * @param string $location The hostname and port, or socket location to connect to clamd
-     * @throws Exception\ConnectionException
+     * @param Socket $socket An instance of \Socket\Raw\Socket which points to clamd
      */
-    public function __construct($location)
+    public function __construct(Socket $socket)
     {
-        $factory = new Factory();
-
-        try {
-            $this->_socket = $factory->createClient($location);
-        } catch (\Exception $e) {
-            throw new ConnectionException('Could not connect to to socket at: ' . $location);
-        }
+        $this->socket = $socket;
     }
 
     /**
@@ -162,11 +155,11 @@ class Client
 
             $size = pack('N', strlen($chunk));
 
-            $this->_socket->send($size, MSG_DONTROUTE);
-            $this->_socket->send($chunk, MSG_DONTROUTE);
+            $this->socket->send($size, MSG_DONTROUTE);
+            $this->socket->send($chunk, MSG_DONTROUTE);
         }
 
-        $this->_socket->send(pack('N', 0), MSG_DONTROUTE);
+        $this->socket->send(pack('N', 0), MSG_DONTROUTE);
 
         $response = $this->_receiveResponse();
 
@@ -180,7 +173,7 @@ class Client
      */
     private function _sendCommand($command)
     {
-        $this->_socket->send("n$command\n", MSG_DONTROUTE);
+        $this->socket->send("n$command\n", MSG_DONTROUTE);
     }
 
     /**
@@ -190,9 +183,9 @@ class Client
      */
     private function _receiveResponse()
     {
-        $result = $this->_socket->read(4096);
+        $result = $this->socket->read(4096);
 
-        $this->_socket->close();
+        $this->socket->close();
 
         return trim($result);
     }

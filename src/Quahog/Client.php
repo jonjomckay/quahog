@@ -137,6 +137,18 @@ class Client
     }
 
     /**
+     * Scan a local file via a stream
+     * 
+     * @param string $file The location of the file to scan
+     * @param int $maxChunkSize The maximum chunk size in bytes to send to clamd at a time
+     * @return string
+     */
+    public function scanLocalFile($file, $maxChunkSize = 1024)
+    {
+        return $this->scanStream(file_get_contents($file), $maxChunkSize);
+    }
+
+    /**
      * Scan a stream
      *
      * @param string $stream A file stream in string form

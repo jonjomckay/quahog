@@ -2,6 +2,7 @@
 use Quahog\Client;
 
 include_once __DIR__ . '/../vendor/autoload.php';
+include_once __DIR__ . '/function_overrides.php';
 
 /**
  * Class QuahogTest
@@ -105,6 +106,20 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
         );
 
         $result = $this->quahog->contScan('/tmp/quahog');
+
+        $this->assertSame(
+            array('filename' => '/tmp/quahog/EICAR', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'),
+            $result
+        );
+    }
+
+    public function testScanLocalFile()
+    {
+        $this->socket->expects($this->any())->method('read')->will(
+            $this->returnValue('/tmp/quahog/EICAR: Eicar-Test-Signature FOUND')
+        );
+
+        $result = $this->quahog->scanLocalFile('/tmp/quahog/EICAR');
 
         $this->assertSame(
             array('filename' => '/tmp/quahog/EICAR', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'),

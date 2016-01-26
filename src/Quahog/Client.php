@@ -1,6 +1,7 @@
 <?php
 namespace Quahog;
 
+use Closure;
 use Quahog\Exception\ConnectionException;
 use Socket\Raw\Socket;
 
@@ -24,6 +25,16 @@ class Client
     public function __construct(Socket $socket)
     {
         $this->socket = $socket;
+    }
+
+    /**
+     * Returns the socket connection to ClamAV
+     *
+     * @return Socket
+     */
+    public function getSocket() {
+
+        return $this->socket;
     }
 
     /**
@@ -145,7 +156,46 @@ class Client
      */
     public function scanLocalFile($file, $maxChunkSize = 1024)
     {
-        return $this->scanStream(file_get_contents($file), $maxChunkSize);
+        $handle = fopen($file, 'r');
+
+        $result = $this->scanResource($handle, $maxChunkSize);
+
+        fclose($handle);
+
+        return $result;
+    }
+
+    /**
+     * @param resource $handle
+     * @param int      $maxChunkSize
+     *
+     * @return string
+     */
+    public function scanResource($handle, $maxChunkSize = 1024) {
+
+        // Start sending file
+        $this->_sendCommand("INSTREAM");
+
+        $self = $this; // Fix for lack of "$this" support in closures in php 5.3, added in 5.4
+
+        // Send the file across in a streaming fashion to prevent issues with large files
+        $this->_chunkStream($handle, function($chunk, $handle, $chunkSize) use ($self) {
+
+            // Send the current file chunk
+            $size = pack('N', strlen($chunk));
+
+            $self->getSocket()->send($size, MSG_DONTROUTE);
+            $self->getSocket()->send($chunk, MSG_DONTROUTE);
+
+        }, $maxChunkSize);
+
+        // Stop sending file
+        $this->socket->send(pack('N', 0), MSG_DONTROUTE);
+
+        // Get our response and return it
+        $response = $this->_receiveResponse();
+
+        return $this->_parseResponse($response);
     }
 
     /**
@@ -167,8 +217,8 @@ class Client
 
             $size = pack('N', strlen($chunk));
 
-            $this->socket->send($size, MSG_DONTROUTE);
-            $this->socket->send($chunk, MSG_DONTROUTE);
+            $this->getSocket()->send($size, MSG_DONTROUTE);
+            $this->getSocket()->send($chunk, MSG_DONTROUTE);
         }
 
         $this->socket->send(pack('N', 0), MSG_DONTROUTE);
@@ -176,6 +226,27 @@ class Client
         $response = $this->_receiveResponse();
 
         return $this->_parseResponse($response);
+    }
+
+    /**
+     * Takes a given PHP streaming resource and breaks it up, and runs the specified closure on each chunk
+     *
+     * @param resource $handle
+     * @param int      $chunkSize
+     * @param Closure  $closure
+     *
+     * @return resource
+     */
+    protected function _chunkStream($handle, Closure $closure, $chunkSize = 1024 ) {
+
+        // While we have stuff left in the stream, grab a chunk and run the closure
+        while($buffer = stream_get_contents($handle, $chunkSize)) {
+
+            // Run our callback with the chunk we have grabbed
+            $closure($buffer, $handle, $chunkSize);
+        }
+
+        return $handle;
     }
 
     /**
@@ -187,6 +258,7 @@ class Client
     {
         $this->socket->send("n$command\n", MSG_DONTROUTE);
     }
+
 
     /**
      * A wrapper to cleanly read a response from clamd

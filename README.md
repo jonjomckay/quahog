@@ -41,6 +41,9 @@ $result = $quahog->contScan('/tmp/virusdirectory');
 // Scan a file or directory recursively using multiple threads
 $result = $quahog->multiscanFile('/tmp/virusdirectory');
 
+// Scan a php streaming resource, such as a file, and optionally pass the maximum chunk size in bytes
+$result = $quahog->scanStream(fopen('/tmp/virusfile'), 1024);
+
 // Scan a stream, and optionally pass the maximum chunk size in bytes
 $result = $quahog->scanStream(file_get_contents('/tmp/virusfile'), 1024);
 

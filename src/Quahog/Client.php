@@ -1,6 +1,7 @@
 <?php
 namespace Quahog;
 
+use InvalidArgumentException;
 use Quahog\Exception\ConnectionException;
 use Socket\Raw\Socket;
 
@@ -130,6 +131,47 @@ class Client
     public function contScan($file)
     {
         $this->_sendCommand('CONTSCAN ' . $file);
+
+        $response = $this->_receiveResponse();
+
+        return $this->_parseResponse($response);
+    }
+
+    /**
+     * Scan a local file via a stream
+     * 
+     * @param string $file The location of the file to scan
+     * @param int $maxChunkSize The maximum chunk size in bytes to send to clamd at a time
+     * @return string
+     */
+    public function scanLocalFile($file, $maxChunkSize = 1024)
+    {
+        return $this->scanStream(file_get_contents($file), $maxChunkSize);
+    }
+
+    /**
+     * Scan a stream
+     *
+     * @param resource $stream A file stream in string form
+     * @param int $maxChunkSize The maximum chunk size in bytes to send to clamd at a time
+     * @return string
+     * @throws InvalidArgumentException
+     */
+    public function scanResourceStream($stream, $maxChunkSize = 1024)
+    {
+        if (!is_resource($stream)) {
+            throw new InvalidArgumentException('Passed stream is not a resource!');
+        }
+
+        $this->_sendCommand("INSTREAM");
+
+        while ($chunk = fread($stream, $maxChunkSize)) {
+            $size = pack('N', strlen($chunk));
+            $this->socket->send($size, MSG_DONTROUTE);
+            $this->socket->send($chunk, MSG_DONTROUTE);
+        }
+
+        $this->socket->send(pack('N', 0), MSG_DONTROUTE);
 
         $response = $this->_receiveResponse();
 

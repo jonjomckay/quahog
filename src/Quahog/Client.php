@@ -15,7 +15,7 @@ class Client
     /**
      * @var Socket
      */
-    private $socket;
+    protected $socket;
 
     /**
      * Instantiate a Quahog\Client instance
@@ -213,7 +213,7 @@ class Client
      *
      * @param string $command
      */
-    private function _sendCommand($command)
+    protected function _sendCommand($command)
     {
         $this->socket->send("n$command\n", MSG_DONTROUTE);
     }
@@ -223,7 +223,7 @@ class Client
      *
      * @return string
      */
-    private function _receiveResponse()
+    protected function _receiveResponse()
     {
         $result = $this->socket->read(4096);
 
@@ -238,7 +238,7 @@ class Client
      * @param string $response
      * @return array
      */
-    private function _parseResponse($response)
+    protected function _parseResponse($response)
     {
         $splitResponse = explode(': ', $response);
 

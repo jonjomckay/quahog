@@ -1,22 +1,24 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
-    "hash": "37cc81c3daf8e18c20cef60591f053b8",
+    "hash": "6d5dce4896c6d4d76941b8f33463e779",
+    "content-hash": "2ac241b1a82ddfe4290010688cf0e8c2",
     "packages": [
         {
             "name": "clue/socket-raw",
-            "version": "v0.1.2",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/clue/socket-raw.git",
-                "reference": "0b5f6b4c5fe0f5512213abe0b7385fd624a22e6b"
+                "url": "https://github.com/clue/php-socket-raw.git",
+                "reference": "8a10282bcb1e45e076a8a8285237681380e55ea5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clue/socket-raw/zipball/0b5f6b4c5fe0f5512213abe0b7385fd624a22e6b",
-                "reference": "0b5f6b4c5fe0f5512213abe0b7385fd624a22e6b",
+                "url": "https://api.github.com/repos/clue/php-socket-raw/zipball/8a10282bcb1e45e076a8a8285237681380e55ea5",
+                "reference": "8a10282bcb1e45e076a8a8285237681380e55ea5",
                 "shasum": ""
             },
             "require": {
@@ -25,16 +27,22 @@
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Socket": ""
+                "psr-4": {
+                    "Socket\\Raw\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Christian Lück",
+                    "email": "christian@lueck.tv"
+                }
+            ],
             "description": "Simple and lightweight OOP wrapper for PHP's low level sockets extension (ext-sockets)",
-            "homepage": "https://github.com/clue/socket-raw",
+            "homepage": "https://github.com/clue/php-socket-raw",
             "keywords": [
                 "Socket",
                 "client",
@@ -49,23 +57,17 @@
                 "udp",
                 "unix"
             ],
-            "time": "2013-05-09 09:16:48"
+            "time": "2015-03-18 23:48:01"
         }
     ],
-    "packages-dev": [
-
-    ],
-    "aliases": [
-
-    ],
-    "minimum-stability": "dev",
-    "stability-flags": [
-
-    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
     "platform": {
         "php": ">=5.3"
     },
-    "platform-dev": [
-
-    ]
+    "platform-dev": []
 }

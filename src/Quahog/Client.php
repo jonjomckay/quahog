@@ -317,17 +317,25 @@ class Client
 	{
 		$splitResponse = explode(': ', $response);
 
-		$filename = $splitResponse[0];
-		$message = $splitResponse[1];
+		$idReturn = [];
+		if (!$this->_inSession) {
+			$filename = $splitResponse[0];
+			$message = $splitResponse[1];
+		}
+		else {
+			$idReturn = ['id' => $splitResponse[0]];
+			$filename = $splitResponse[1];
+			$message = $splitResponse[2];
+		}
 
 		if ($message === self::RESULT_OK) {
-			return array('filename' => $filename, 'reason' => null, 'status' => self::RESULT_OK);
+			return $idReturn + ['filename' => $filename, 'reason' => null, 'status' => self::RESULT_OK];
 		} else {
 			$parts = explode(' ', $message);
 			$status = array_pop($parts);
 			$reason = implode(' ', $parts);
 
-			return array('filename' => $filename, 'reason' => $reason, 'status' => $status);
+			return $idReturn + ['filename' => $filename, 'reason' => $reason, 'status' => $status];
 		}
 	}
 } 

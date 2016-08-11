@@ -11,6 +11,9 @@ use Socket\Raw\Socket;
  */
 class Client
 {
+	const RESULT_OK = 'OK';
+	const RESULT_FOUND = 'FOUND';
+	const RESULT_ERROR = 'ERROR';
 
 	/** @var Socket $_socket */
 	private $_socket;
@@ -277,7 +280,7 @@ class Client
 		$result = $this->_socket->read(4096);
 
 		if (!$this->_inSession) {
-			$this->_socket->close();
+			$this->_closeConnection();
 		}
 
 		return trim($result);
@@ -317,8 +320,8 @@ class Client
 		$filename = $splitResponse[0];
 		$message = $splitResponse[1];
 
-		if ($message === 'OK') {
-			return array('filename' => $filename, 'reason' => null, 'status' => 'OK');
+		if ($message === self::RESULT_OK) {
+			return array('filename' => $filename, 'reason' => null, 'status' => self::RESULT_OK);
 		} else {
 			$parts = explode(' ', $message);
 			$status = array_pop($parts);

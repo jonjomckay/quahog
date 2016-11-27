@@ -317,7 +317,7 @@ class Client
     {
         $splitResponse = explode(': ', $response);
 
-        $idReturn = [];
+        $idReturn = array();
         if (!$this->_inSession) {
             $filename = $splitResponse[0];
             $message = $splitResponse[1];

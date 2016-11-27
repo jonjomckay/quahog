@@ -329,13 +329,13 @@ class Client
         }
 
         if ($message === self::RESULT_OK) {
-            return $idReturn + ['filename' => $filename, 'reason' => null, 'status' => self::RESULT_OK];
+            return $idReturn + array('filename' => $filename, 'reason' => null, 'status' => self::RESULT_OK);
         } else {
             $parts = explode(' ', $message);
             $status = array_pop($parts);
             $reason = implode(' ', $parts);
 
-            return $idReturn + ['filename' => $filename, 'reason' => $reason, 'status' => $status];
+            return $idReturn + array('filename' => $filename, 'reason' => $reason, 'status' => $status);
         }
     }
 }

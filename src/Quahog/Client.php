@@ -1,8 +1,8 @@
 <?php
-namespace Quahog;
+namespace Blurgroup\Quahog;
 
 use InvalidArgumentException;
-use Quahog\Exception\ConnectionException;
+use Blurgroup\Quahog\Exception\ConnectionException;
 use Socket\Raw\Socket;
 
 /**

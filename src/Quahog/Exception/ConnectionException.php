@@ -1,5 +1,6 @@
 <?php
-namespace Quahog\Exception;
+
+namespace Blurgroup\Quahog\Exception;
 
 /**
  * Class ConnectionException

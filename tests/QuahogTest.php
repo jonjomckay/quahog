@@ -1,10 +1,12 @@
 <?php
 
-namespace Blurgroup\Quahog\Tests;
+namespace Xenolope\Quahog\Tests;
 
-use Blurgroup\Quahog\Client;
+use Socket\Raw\Socket;
+use Xenolope\Quahog\Client;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
+use Xenolope\Quahog\Exception\ConnectionException;
 
 class QuahogTest extends \PHPUnit_Framework_TestCase
 {
@@ -25,7 +27,7 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->socket = $this->getMockBuilder('Socket\Raw\Socket')->disableOriginalConstructor()->getMock();
+        $this->socket = $this->getMockBuilder(Socket::class)->disableOriginalConstructor()->getMock();
         $this->quahog = new Client($this->socket);
         $this->root = vfsStream::setup('tmp');
     }
@@ -41,7 +43,7 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function testPingFail()
     {
-        $this->setExpectedException('Blurgroup\Quahog\Exception\ConnectionException');
+        $this->setExpectedException(ConnectionException::class);
 
         $this->socket->expects($this->any())->method('read')->will($this->returnValue(null));
 

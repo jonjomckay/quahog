@@ -1,9 +1,9 @@
 <?php
 
-namespace Blurgroup\Quahog;
+namespace Xenolope\Quahog;
 
 use InvalidArgumentException;
-use Blurgroup\Quahog\Exception\ConnectionException;
+use Xenolope\Quahog\Exception\ConnectionException;
 use Socket\Raw\Socket;
 
 /**

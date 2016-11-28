@@ -10,12 +10,12 @@
   ],
   "autoload": {
     "psr-4": {
-      "Blurgroup\\Quahog\\": "src/Quahog"
+      "Xenolope\\Quahog\\": "src/Quahog"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Blurgroup\\Quahog\\Tests\\": "tests/"
+      "Xenolope\\Quahog\\Tests\\": "tests/"
     }
   },
   "require": {

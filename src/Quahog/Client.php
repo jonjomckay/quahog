@@ -1,4 +1,5 @@
 <?php
+
 namespace Blurgroup\Quahog;
 
 use InvalidArgumentException;
@@ -21,7 +22,6 @@ class Client
     /** @var bool $_inSession Has the current connection a Session? */
     private $_inSession = false;
 
-
     /**
      * Instantiate a Quahog\Client instance.
      *
@@ -30,9 +30,7 @@ class Client
     public function __construct(Socket $socket)
     {
         $this->_socket = $socket;
-
     }
-
 
     /**
      * Ping clamd to see if we get a response.
@@ -64,7 +62,6 @@ class Client
         return $this->_receiveResponse();
     }
 
-
     /**
      * Fetch stats for the ClamAV scan queue.
      *
@@ -76,7 +73,6 @@ class Client
 
         return $this->_receiveResponse();
     }
-
 
     /**
      * Reload the ClamAV virus definition database.
@@ -90,7 +86,6 @@ class Client
         return $this->_receiveResponse();
     }
 
-
     /**
      * Shutdown clamd cleanly.
      *
@@ -103,7 +98,6 @@ class Client
         return $this->_receiveResponse();
     }
 
-
     /**
      * Disconnect the client.
      *
@@ -113,7 +107,6 @@ class Client
     {
         return $this->_closeConnection();
     }
-
 
     /**
      * Scan a single file.
@@ -131,7 +124,6 @@ class Client
         return $this->_parseResponse($response);
     }
 
-
     /**
      * Scan a file or directory recursively using multiple threads.
      *
@@ -147,7 +139,6 @@ class Client
 
         return $this->_parseResponse($response);
     }
-
 
     /**
      * Scan a file or directory recursively.
@@ -165,7 +156,6 @@ class Client
         return $this->_parseResponse($response);
     }
 
-
     /**
      * Scan a local file via a stream.
      *
@@ -178,7 +168,6 @@ class Client
     {
         return $this->scanStream(file_get_contents($file), $maxChunkSize);
     }
-
 
     /**
      * Scan a stream.
@@ -209,7 +198,6 @@ class Client
 
         return $this->_parseResponse($response);
     }
-
 
     /**
      * Scan a stream.
@@ -242,7 +230,6 @@ class Client
         return $this->_parseResponse($response);
     }
 
-
     public function startSession()
     {
         $this->_inSession = true;
@@ -250,14 +237,12 @@ class Client
         $this->_sendCommand('IDSESSION');
     }
 
-
     public function endSession()
     {
         $this->_sendCommand('END');
 
         $this->_inSession = false;
     }
-
 
     /**
      * A wrapper to send a command to clamd.
@@ -268,7 +253,6 @@ class Client
     {
         $this->_socket->send("n$command\n", MSG_DONTROUTE);
     }
-
 
     /**
      * A wrapper to cleanly read a response from clamd.
@@ -285,7 +269,6 @@ class Client
 
         return trim($result);
     }
-
 
     /**
      * Explicitly close the current socket's connection.
@@ -304,7 +287,6 @@ class Client
             throw $e;
         }
     }
-
 
     /**
      * Parse the received response into a structured array ($filename, $reason, $status).

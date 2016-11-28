@@ -64,12 +64,6 @@ To run the test suite you will need PHPUnit installed. Go to the project root an
 $ phpunit
 ````
 
-## Credits
-
-![blur Group](http://i.imgur.com/5kko4VT.png)
-
-[Jonjo McKay](mailto:jonjo@blurgroup.com) and [blur Group](http://blurgroup.com)
-
 ## License
 
 Quahog is released under the [MIT License](http://www.opensource.org/licenses/MIT)

@@ -1,5 +1,5 @@
 {
-  "name": "blurgroup/quahog",
+  "name": "xenolope/quahog",
   "description": "A PHP client library for ClamAV clamd daemon",
   "license": "MIT",
   "authors": [

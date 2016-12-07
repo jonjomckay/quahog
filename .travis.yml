@@ -5,6 +5,10 @@ before_install:
   - sudo apt-get install -qq clamav-daemon
   - sudo freshclam
   - sudo /etc/init.d/clamav-daemon start
+  
+cache:
+  directories:
+    - $HOME/.composer/cache
 
 install:
   - composer install

@@ -15,7 +15,7 @@ It is recommended to install Quahog through [composer](http://getcomposer.org).
 ```JSON
 {
     "require": {
-        "blurgroup/quahog": "0.*"
+        "xenolope/quahog": "2.*"
     }
 }
 ```

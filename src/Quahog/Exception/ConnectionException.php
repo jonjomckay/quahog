@@ -1,5 +1,6 @@
 <?php
-namespace Quahog\Exception;
+
+namespace Xenolope\Quahog\Exception;
 
 /**
  * Class ConnectionException

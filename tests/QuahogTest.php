@@ -1,28 +1,35 @@
 <?php
-use Quahog\Client;
 
-include_once __DIR__ . '/../vendor/autoload.php';
+namespace Xenolope\Quahog\Tests;
 
-/**
- * Class QuahogTest
- */
+use Socket\Raw\Socket;
+use Xenolope\Quahog\Client;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
+use Xenolope\Quahog\Exception\ConnectionException;
+
 class QuahogTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @var \Socket\Raw\Socket|\PHPUnit_Framework_MockObject_MockObject
      */
     private $socket;
 
     /**
-     * @var \Quahog\Client|\PHPUnit_Framework_MockObject_MockObject
+     * @var Client|\PHPUnit_Framework_MockObject_MockObject
      */
     private $quahog;
 
+    /**
+     * @var vfsStreamDirectory
+     */
+    private $root;
+
     public function setUp()
     {
-        $this->socket = $this->getMockBuilder('Socket\Raw\Socket')->disableOriginalConstructor()->getMock();
+        $this->socket = $this->getMockBuilder(Socket::class)->disableOriginalConstructor()->getMock();
         $this->quahog = new Client($this->socket);
+        $this->root = vfsStream::setup('tmp');
     }
 
     public function testPingOK()
@@ -36,7 +43,7 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function testPingFail()
     {
-        $this->setExpectedException('Quahog\Exception\ConnectionException');
+        $this->setExpectedException(ConnectionException::class);
 
         $this->socket->expects($this->any())->method('read')->will($this->returnValue(null));
 
@@ -75,13 +82,13 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
     public function testScanFile()
     {
         $this->socket->expects($this->any())->method('read')->will(
-            $this->returnValue('/tmp/quahog/EICAR: Eicar-Test-Signature FOUND')
+            $this->returnValue('/tmp/EICAR: Eicar-Test-Signature FOUND')
         );
 
-        $result = $this->quahog->scanFile('/tmp/quahog/EICAR');
+        $result = $this->quahog->scanFile('/tmp/EICAR');
 
         $this->assertSame(
-            array('filename' => '/tmp/quahog/EICAR', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'),
+            array('filename' => '/tmp/EICAR', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'),
             $result
         );
     }
@@ -107,7 +114,25 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
         $result = $this->quahog->contScan('/tmp/quahog');
 
         $this->assertSame(
-            array('filename' => '/tmp/quahog/EICAR', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'),
+            ['filename' => '/tmp/quahog/EICAR', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
+            $result
+        );
+    }
+
+    public function testScanLocalFile()
+    {
+        $file = vfsStream::newFile('EICAR')
+            ->withContent('/tmp/EICAR: Eicar-Test-Signature FOUND')
+            ->at($this->root);
+
+        $this->socket->expects($this->any())->method('read')->will(
+            $this->returnValue($file->url() . ': Eicar-Test-Signature FOUND')
+        );
+
+        $result = $this->quahog->scanLocalFile($file->url());
+
+        $this->assertSame(
+            ['filename' => $file->url(), 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
             $result
         );
     }
@@ -121,7 +146,7 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
         $result = $this->quahog->scanStream('stream');
 
         $this->assertSame(
-            array('filename' => 'stream', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'),
+            ['filename' => 'stream', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
             $result
         );
     }

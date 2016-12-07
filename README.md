@@ -1,7 +1,8 @@
 Quahog
 ======
 
-[![Build Status](https://travis-ci.org/jonjo-blur/quahog.png?branch=develop)](https://travis-ci.org/jonjo-blur/quahog)
+
+[![Build Status](https://travis-ci.org/jonjomckay/quahog.png?branch=develop)](https://travis-ci.org/jonjomckay/quahog)
 
 Quahog is a simple PHP library to interface with the clamd anti-virus daemon. It was written as all of the libraries out
 there for interfacing with ClamAV from PHP use ```exec('clamscan')```, which isn't exactly an ideal solution, as
@@ -14,7 +15,7 @@ It is recommended to install Quahog through [composer](http://getcomposer.org).
 ```JSON
 {
     "require": {
-        "blurgroup/quahog": "0.*"
+        "xenolope/quahog": "2.*"
     }
 }
 ```
@@ -22,15 +23,11 @@ It is recommended to install Quahog through [composer](http://getcomposer.org).
 ## Usage
 
 ```php
-// Create a new socket instance in PHP 5.3
-$factory = new Factory();
-$socket = $factory->createClient('unix:///var/run/clamav/clamd.ctl');
-
-// Create a new socket instance in PHP >=5.4
-$socket = (new Factory())->createClient('unix:///var/run/clamav/clamd.ctl');
+// Create a new socket instance
+$socket = (new \Socket\Raw\Factory())->createClient('unix:///var/run/clamav/clamd.ctl');
 
 // Create a new instance of the Client
-$quahog = new \Quahog\Client($socket);
+$quahog = new \Xenolope\Quahog\Client($socket);
 
 // Scan a file
 $result = $quahog->scanFile('/tmp/virusfile');
@@ -66,12 +63,6 @@ To run the test suite you will need PHPUnit installed. Go to the project root an
 ````bash
 $ phpunit
 ````
-
-## Credits
-
-![blur Group](http://i.imgur.com/5kko4VT.png)
-
-[Jonjo McKay](mailto:jonjo@blurgroup.com) and [blur Group](http://blurgroup.com)
 
 ## License
 

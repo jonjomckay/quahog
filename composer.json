@@ -1,18 +1,29 @@
 {
-    "name": "blurgroup/quahog",
-    "description": "A PHP client library for ClamAV clamd daemon",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Jonjo McKay",
-            "email": "jonjo@blurgroup.com"
-        }
-    ],
-    "autoload": {
-        "psr-0": {"Quahog": "src/"}
-    },
-    "require": {
-        "php": ">=5.3",
-        "clue/socket-raw": "0.1.*"
+  "name": "xenolope/quahog",
+  "description": "A PHP client library for ClamAV clamd daemon",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jonjo McKay",
+      "email": "jonjo@jonjomckay.com"
     }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Xenolope\\Quahog\\": "src/Quahog"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Xenolope\\Quahog\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "php": ">=5.6",
+    "clue/socket-raw": "^1.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^4.8",
+    "mikey179/vfsStream": "^1.6"
+  }
 }

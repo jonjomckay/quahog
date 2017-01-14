@@ -21,15 +21,19 @@ class Client
 
     /** @var bool $_inSession Has the current connection a Session? */
     private $_inSession = false;
+    /** @var int $_timeout Read timeout */
+    private $_timeout = 30;
 
     /**
      * Instantiate a Quahog\Client instance.
      *
      * @param Socket $socket An instance of \Socket\Raw\Socket which points to clamd
+     * @param $timeout
      */
-    public function __construct(Socket $socket)
+    public function __construct(Socket $socket, $timeout = 30)
     {
         $this->_socket = $socket;
+        $this->_timeout = $timeout;
     }
 
     /**
@@ -42,7 +46,7 @@ class Client
     {
         $this->_sendCommand('PING');
 
-        if ($this->_receiveResponse() === 'PONG') {
+        if ($this->_receiveResponse(true) === 'PONG') {
             return true;
         }
 
@@ -59,7 +63,7 @@ class Client
     {
         $this->_sendCommand('VERSION');
 
-        return $this->_receiveResponse();
+        return $this->_receiveResponse(true);
     }
 
     /**
@@ -71,7 +75,7 @@ class Client
     {
         $this->_sendCommand('STATS');
 
-        return $this->_receiveResponse();
+        return $this->_receiveResponse(true, "END\n");
     }
 
     /**
@@ -257,14 +261,34 @@ class Client
     /**
      * A wrapper to cleanly read a response from clamd.
      *
+     * @param bool $removeId
+     * @param string $readUntil
      * @return string
+     * @throws ConnectionException
      */
-    private function _receiveResponse()
+    private function _receiveResponse($removeId = false, $readUntil = "\n")
     {
-        $result = $this->_socket->read(4096);
+        $result = null;
+        $readUntilLen = strlen($readUntil);
+        do {
+            if ($this->_socket->selectRead($this->_timeout)) {
+                $rt = $this->_socket->read(4096, PHP_NORMAL_READ);
+                if ($rt == "") {
+                    break;
+                }
+                $result .= $rt;
+                if (strcmp(substr($result, 0 - $readUntilLen), $readUntil) == 0) {
+                    break;
+                }
+            } else {
+                throw new ConnectionException("Timeout waiting to read response");
+            }
+        } while (true);
 
         if (!$this->_inSession) {
             $this->_closeConnection();
+        } else if ($removeId) {
+            $result = preg_replace('/^\d+: /', "", $result, 1);
         }
 
         return trim($result);

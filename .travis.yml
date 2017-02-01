@@ -16,6 +16,7 @@ cache:
 
 install:
   - composer install
+  - cat /etc/clamd.conf || true
 
 php:
   - 5.6

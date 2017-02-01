@@ -61,7 +61,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
         $quahog = new \Xenolope\Quahog\Client($socket);
 
 
-        $name = tempnam(sys_get_temp_dir(), "");
+        $name = tempnam(__DIR__, "");
         file_put_contents($name, "ABC");
 
         try {
@@ -80,7 +80,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
         $socket = (new \Socket\Raw\Factory())->createClient($address);
         $quahog = new \Xenolope\Quahog\Client($socket);
 
-        $name = tempnam(sys_get_temp_dir(), "");
+        $name = tempnam(__DIR__, "");
         file_put_contents($name, self::EICAR);
 
         try {
@@ -117,4 +117,19 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
         );
         $quahog->endSession();
     }
+
+    /** @dataProvider addresses */
+    public function testStatus($address) {
+        $socket = (new \Socket\Raw\Factory())->createClient($address);
+        $quahog = new \Xenolope\Quahog\Client($socket);
+        $this->assertStringEndsWith("END",$quahog->stats());
+    }
+
+    /** @dataProvider addresses */
+    public function testPing($address) {
+        $socket = (new \Socket\Raw\Factory())->createClient($address);
+        $quahog = new \Xenolope\Quahog\Client($socket);
+        $this->assertTrue($quahog->ping());
+    }
+
 }

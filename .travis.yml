@@ -16,7 +16,8 @@ cache:
 
 install:
   - composer install
-  - cat /etc/clamd.conf || true
+  - ls /etc/ /usr/local/etc/ || true
+  - ps axf
 
 php:
   - 5.6

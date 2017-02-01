@@ -6,11 +6,9 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
     const EICAR = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STAND' . 'ARD-ANTIVIRUS-TEST-FILE!$H+H*';
     protected $address = 'unix:///var/run/clamav/clamd.ctl';
 
-    public function setUp() {
-        parent::setUp();
-        if (isset($_SERVER['CLAM_UNIX_ADDRESS'])) {
-            $this->address = $_SERVER['CLAM_UNIX_ADDRESS'];
-        }
+    public static function setUpBeforeClass() {
+        parent::setUpBeforeClass();
+        umask(0);
     }
 
     public function addresses() {

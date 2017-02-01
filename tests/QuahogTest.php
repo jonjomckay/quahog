@@ -47,7 +47,7 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException(ConnectionException::class);
 
         $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
-        $this->socket->expects($this->any())->method('read')->will($this->returnValue(null));
+        $this->socket->expects($this->any())->method('read')->will($this->returnValue(''));
 
         $result = $this->quahog->ping();
 
@@ -164,6 +164,7 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
     public function testShutdown()
     {
         $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
+        $this->socket->expects($this->any())->method('read')->will($this->returnValue(''));
         $result = $this->quahog->shutdown();
 
         $this->assertSame('', $result);

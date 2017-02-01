@@ -18,6 +18,7 @@ install:
   - composer install
   - ls /etc/ /usr/local/etc/ || true
   - ps axf
+  - ls /var/run/clamav/ || true
 
 php:
   - 5.6

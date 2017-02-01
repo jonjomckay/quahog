@@ -106,6 +106,27 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @dataProvider addresses */
+    public function testScanResourceEicar($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
+
+        $name = tempnam(sys_get_temp_dir(), "");
+        file_put_contents($name, self::EICAR);
+        chmod($name, 0777);
+
+        try {
+            $result = $quahog->scanResourceStream(fopen($name,"r"));
+            $this->assertSame(
+                ['filename' => 'stream', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
+                $result
+            );
+        } finally {
+            unlink($name);
+        }
+    }
+
+    /** @dataProvider addresses */
     public function testScanMultiScanEicar($address)
     {
         $socket = (new Factory())->createClient($address);

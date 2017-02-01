@@ -273,7 +273,7 @@ class Client
         do {
             if ($this->_socket->selectRead($this->_timeout)) {
                 $rt = $this->_socket->read(4096, PHP_NORMAL_READ);
-                if ($rt == "") {
+                if ($rt === "") {
                     break;
                 }
                 $result .= $rt;

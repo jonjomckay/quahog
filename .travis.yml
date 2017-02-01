@@ -3,16 +3,17 @@ language: php
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq clamav-daemon
+  - echo TCPSocket 3310 >> /etc/clamav/clamd.conf
   - sudo freshclam
   - sudo /etc/init.d/clamav-daemon start
   
 cache:
   directories:
     - $HOME/.composer/cache
+    - /var/lib/clamav
 
 install:
   - composer install
-  - find /etc/clamav -print -exec cat {} \;
 
 php:
   - 5.6

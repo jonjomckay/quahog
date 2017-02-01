@@ -1,11 +1,7 @@
 language: php
 
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq clamav-daemon
-  - sudo sh -c 'echo TCPSocket 3310 >> /etc/clamav/clamd.conf'
-  - sudo freshclam
-  - sudo /etc/init.d/clamav-daemon start
+  - sudo sh install_clam.sh
   
 cache:
   directories:

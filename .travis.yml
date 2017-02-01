@@ -6,6 +6,7 @@ before_install:
   - sudo chmod 777 /tmp/clamav
   - sudo sed -i 's#/var/lib/clamav#/tmp/clamav#g' /etc/clamav/clamd.conf
   - sudo sed -i 's#/var/lib/clamav#/tmp/clamav#g' /etc/clamav/freshclam.conf
+  - echo TCPSocket 3310 >> /etc/clamav/clamd.conf
   - sudo freshclam
   - sudo /etc/init.d/clamav-daemon start
 
@@ -16,7 +17,6 @@ cache:
 
 install:
   - composer install
-  - find /etc/clamav -print -exec cat {} \;
 
 php:
   - 5.6

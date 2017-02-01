@@ -12,9 +12,7 @@ cache:
 
 install:
   - composer install
-  - ls /etc/ /usr/local/etc/ || true
-  - ps axf
-  - ls /var/run/clamav/ || true
+  - find /etc/clamav -print -exec cat {} \;
 
 php:
   - 5.6

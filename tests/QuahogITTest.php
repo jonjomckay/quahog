@@ -1,17 +1,22 @@
 <?php
 namespace Xenolope\Quahog\Tests;
 
+use Socket\Raw\Factory;
+use Xenolope\Quahog\Client;
 
-class QuahogITTest extends \PHPUnit_Framework_TestCase {
+class QuahogITTest extends \PHPUnit_Framework_TestCase
+{
     const EICAR = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STAND' . 'ARD-ANTIVIRUS-TEST-FILE!$H+H*';
     protected $address = 'unix:///var/run/clamav/clamd.ctl';
 
-    public static function setUpBeforeClass() {
+    public static function setUpBeforeClass()
+    {
         parent::setUpBeforeClass();
         umask(0);
     }
 
-    public function addresses() {
+    public function addresses()
+    {
         $addresses = [];
         if (array_key_exists('CLAM_UNIX_ADDRESS', $_SERVER)) {
             if (!empty($_SERVER['CLAM_UNIX_ADDRESS'])) {
@@ -32,9 +37,10 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
     }
 
     /** @dataProvider addresses */
-    public function testScanStreamClean($address) {
-        $socket = (new \Socket\Raw\Factory())->createClient($address);
-        $quahog = new \Xenolope\Quahog\Client($socket);
+    public function testScanStreamClean($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
 
         $result = $quahog->scanStream("ABC");
         $this->assertSame(
@@ -44,11 +50,12 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
     }
 
     /** @dataProvider addresses */
-    public function testScanStreamEicar($address) {
-        $socket = (new \Socket\Raw\Factory())->createClient($address);
-        $quahog = new \Xenolope\Quahog\Client($socket);
+    public function testScanStreamEicar($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
 
-        $result = $quahog->scanStream(self::EICAR);
+        $result = $quahog->scanStream(str_pad(self::EICAR, 1000, " ", STR_PAD_BOTH), 10);
         $this->assertSame(
             ['filename' => 'stream', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
             $result
@@ -56,14 +63,15 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
     }
 
     /** @dataProvider addresses */
-    public function testScanFileClean($address) {
-        $socket = (new \Socket\Raw\Factory())->createClient($address);
-        $quahog = new \Xenolope\Quahog\Client($socket);
+    public function testScanFileClean($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
 
 
         $name = tempnam(sys_get_temp_dir(), "");
         file_put_contents($name, "ABC");
-        chmod($name,0777);
+        chmod($name, 0777);
 
         try {
             $result = $quahog->scanFile($name);
@@ -77,13 +85,14 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
     }
 
     /** @dataProvider addresses */
-    public function testScanFileEicar($address) {
-        $socket = (new \Socket\Raw\Factory())->createClient($address);
-        $quahog = new \Xenolope\Quahog\Client($socket);
+    public function testScanFileEicar($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
 
         $name = tempnam(sys_get_temp_dir(), "");
         file_put_contents($name, self::EICAR);
-        chmod($name,0777);
+        chmod($name, 0777);
 
         try {
             $result = $quahog->scanFile($name);
@@ -97,9 +106,68 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
     }
 
     /** @dataProvider addresses */
-    public function testScanStreamSessionEicar($address) {
-        $socket = (new \Socket\Raw\Factory())->createClient($address);
-        $quahog = new \Xenolope\Quahog\Client($socket);
+    public function testScanMultiScanEicar($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
+
+        $name = tempnam(sys_get_temp_dir(), "");
+        unlink($name);
+        mkdir($name);
+        $file1 = $name . DIRECTORY_SEPARATOR . "text";
+        $file2 = $name . DIRECTORY_SEPARATOR . "eicar1";
+        file_put_contents($file1, "ABC");
+        file_put_contents($file2, self::EICAR);
+        chmod($name, 0777);
+        chmod($file1, 0777);
+        chmod($file2, 0777);
+        try {
+            $result = $quahog->multiscanFile($name);
+            $this->assertSame(
+                ['filename' => $file2, 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
+                $result
+            );
+        } finally {
+            unlink($file1);
+            unlink($file2);
+            rmdir($name);
+        }
+    }
+
+    /** @dataProvider addresses */
+    public function testScanContScanEicar($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
+
+        $name = tempnam(sys_get_temp_dir(), "");
+        unlink($name);
+        mkdir($name);
+        $file1 = $name . DIRECTORY_SEPARATOR . "text";
+        $file2 = $name . DIRECTORY_SEPARATOR . "eicar1";
+        file_put_contents($file1, "ABC");
+        file_put_contents($file2, self::EICAR);
+        chmod($name, 0777);
+        chmod($file1, 0777);
+        chmod($file2, 0777);
+        try {
+            $result = $quahog->contScan($name);
+            $this->assertSame(
+                ['filename' => $file2, 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
+                $result
+            );
+        } finally {
+            unlink($file1);
+            unlink($file2);
+            rmdir($name);
+        }
+    }
+
+    /** @dataProvider addresses */
+    public function testScanStreamSessionEicar($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
 
         $quahog->startSession();
         $result = $quahog->scanStream(self::EICAR);
@@ -118,20 +186,31 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
             $result
         );
         $quahog->endSession();
+        $quahog->disconnect();
     }
 
     /** @dataProvider addresses */
-    public function testStatus($address) {
-        $socket = (new \Socket\Raw\Factory())->createClient($address);
-        $quahog = new \Xenolope\Quahog\Client($socket);
-        $this->assertStringEndsWith("END",$quahog->stats());
+    public function testStatus($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
+        $this->assertStringEndsWith("END", $quahog->stats());
     }
 
     /** @dataProvider addresses */
-    public function testPing($address) {
-        $socket = (new \Socket\Raw\Factory())->createClient($address);
-        $quahog = new \Xenolope\Quahog\Client($socket);
+    public function testPing($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
         $this->assertTrue($quahog->ping());
+    }
+
+    /** @dataProvider addresses */
+    public function testVersion($address)
+    {
+        $socket = (new Factory())->createClient($address);
+        $quahog = new Client($socket);
+        $this->assertNotEmpty($quahog->version());
     }
 
 }

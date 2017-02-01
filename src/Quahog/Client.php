@@ -176,7 +176,7 @@ class Client
     /**
      * Scan a stream.
      *
-     * @param resource $stream A file stream in string form.
+     * @param resource $stream A file stream
      * @param int      $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
      *
      * @return string

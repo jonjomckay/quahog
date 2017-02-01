@@ -6,7 +6,7 @@ before_install:
 cache:
   directories:
     - $HOME/.composer/cache
-    - /var/lib/clamav
+    - $HOME/clamav
 
 install:
   - composer install

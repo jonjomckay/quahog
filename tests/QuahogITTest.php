@@ -61,8 +61,9 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
         $quahog = new \Xenolope\Quahog\Client($socket);
 
 
-        $name = tempnam(__DIR__, "");
+        $name = tempnam(sys_get_temp_dir(), "");
         file_put_contents($name, "ABC");
+        chmod($name,0777);
 
         try {
             $result = $quahog->scanFile($name);
@@ -80,8 +81,9 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase {
         $socket = (new \Socket\Raw\Factory())->createClient($address);
         $quahog = new \Xenolope\Quahog\Client($socket);
 
-        $name = tempnam(__DIR__, "");
+        $name = tempnam(sys_get_temp_dir(), "");
         file_put_contents($name, self::EICAR);
+        chmod($name,0777);
 
         try {
             $result = $quahog->scanFile($name);

@@ -5,6 +5,10 @@ before_install:
   - sudo apt-get install -qq clamav-daemon
   - sudo freshclam
   - sudo /etc/init.d/clamav-daemon start
+
+before_cache:
+  - sudo chown clamav:travis /var/lib/clamav
+  - sudo chmod 775 /var/lib/clamav
   
 cache:
   directories:

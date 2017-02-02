@@ -3,7 +3,7 @@ language: php
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq clamav-daemon
-  - sudo mkdir -m 777 /tmp/clamav
+  - sudo chmod 777 /tmp/clamav
   - sudo sed -i 's#/var/lib/clamav#/tmp/clamav#g' /etc/clamav/clamd.conf
   - sudo sed -i 's#/var/lib/clamav#/tmp/clamav#g' /etc/clamav/freshclam.conf
   - sudo freshclam

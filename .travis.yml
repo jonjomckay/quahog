@@ -8,6 +8,7 @@ before_install:
   - sudo sed -i 's#/var/lib/clamav#/tmp/clamav#g' /etc/clamav/freshclam.conf
   - sudo sh -c 'echo TCPSocket 3310 >> /etc/clamav/clamd.conf'
   - sudo freshclam
+  - sudo rsync -ar /tmp/clamav/ /var/lib/clamav/
   - sudo /etc/init.d/clamav-daemon start
 
 cache:

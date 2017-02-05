@@ -23,17 +23,23 @@ class Client
     private $_inSession = false;
     /** @var int $_timeout Read timeout */
     private $_timeout = 30;
+    private $_mode;
 
     /**
      * Instantiate a Quahog\Client instance.
      *
      * @param Socket $socket An instance of \Socket\Raw\Socket which points to clamd
-     * @param $timeout
+     * @param int $mode
+     * @param int $timeout
      */
-    public function __construct(Socket $socket, $timeout = 30)
+    public function __construct(Socket $socket, $mode = PHP_BINARY_READ, $timeout = 30)
     {
+        $this->_mode = $mode;
         $this->_socket = $socket;
         $this->_timeout = $timeout;
+        if ($mode === PHP_BINARY_READ) {
+            trigger_error("Using binary read is deprecated and will be removed in a future release. Explicitly set $mode to PHP_NORMAL_READ to avoid this message.", E_USER_NOTICE);
+        }
     }
 
     /**
@@ -272,7 +278,7 @@ class Client
         $readUntilLen = strlen($readUntil);
         do {
             if ($this->_socket->selectRead($this->_timeout)) {
-                $rt = $this->_socket->read(4096, PHP_NORMAL_READ);
+                $rt = $this->_socket->read(4096, $this->_mode);
                 if ($rt === "") {
                     break;
                 }
@@ -280,8 +286,10 @@ class Client
                 if (strcmp(substr($result, 0 - $readUntilLen), $readUntil) == 0) {
                     break;
                 }
-            } else {
+            } else if ($this->_mode == PHP_NORMAL_READ) {
                 throw new ConnectionException("Timeout waiting to read response");
+            } else {
+                break;
             }
         } while (true);
 

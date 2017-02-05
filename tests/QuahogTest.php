@@ -28,7 +28,7 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->socket = $this->getMockBuilder(Socket::class)->disableOriginalConstructor()->getMock();
-        $this->quahog = new Client($this->socket);
+        $this->quahog = new Client($this->socket, PHP_NORMAL_READ);
         $this->root = vfsStream::setup('tmp');
     }
 

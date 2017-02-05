@@ -38,7 +38,7 @@ class Client
         $this->_socket = $socket;
         $this->_timeout = $timeout;
         if ($mode === PHP_BINARY_READ) {
-            trigger_error("Using binary read is deprecated and will be removed in a future release. Explicitly set $mode to PHP_NORMAL_READ to avoid this message.", E_USER_NOTICE);
+            trigger_error("Using binary read is deprecated and will be removed in a future release. Explicitly set $mode to PHP_NORMAL_READ to avoid this message.", E_USER_DEPRECATED);
         }
     }
 
@@ -286,7 +286,7 @@ class Client
                 if (strcmp(substr($result, 0 - $readUntilLen), $readUntil) == 0) {
                     break;
                 }
-            } else if ($this->_mode == PHP_NORMAL_READ) {
+            } else if ($this->_mode === PHP_NORMAL_READ) {
                 throw new ConnectionException("Timeout waiting to read response");
             } else {
                 break;

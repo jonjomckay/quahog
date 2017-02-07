@@ -29,10 +29,10 @@ class Client
      * Instantiate a Quahog\Client instance.
      *
      * @param Socket $socket An instance of \Socket\Raw\Socket which points to clamd
-     * @param int $mode
      * @param int $timeout
+     * @param int $mode
      */
-    public function __construct(Socket $socket, $mode = PHP_BINARY_READ, $timeout = 30)
+    public function __construct(Socket $socket, $timeout = 30, $mode = PHP_BINARY_READ)
     {
         $this->_mode = $mode;
         $this->_socket = $socket;

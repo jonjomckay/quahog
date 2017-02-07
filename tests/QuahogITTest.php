@@ -40,7 +40,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testScanStreamClean($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $result = $quahog->scanStream("ABC");
         $this->assertSame(
@@ -53,7 +53,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testScanStreamEicar($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $result = $quahog->scanStream(str_pad(self::EICAR, 1000, " ", STR_PAD_BOTH), 10);
         $this->assertSame(
@@ -66,7 +66,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testScanFileClean($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
 
         $name = tempnam(sys_get_temp_dir(), "");
@@ -88,7 +88,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testScanFileEicar($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $name = tempnam(sys_get_temp_dir(), "");
         file_put_contents($name, self::EICAR);
@@ -109,7 +109,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testScanResourceEicar($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $name = tempnam(sys_get_temp_dir(), "");
         file_put_contents($name, self::EICAR);
@@ -130,7 +130,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testScanMultiScanEicar($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $name = tempnam(sys_get_temp_dir(), "");
         unlink($name);
@@ -159,7 +159,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testScanContScanEicar($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $name = tempnam(sys_get_temp_dir(), "");
         unlink($name);
@@ -188,7 +188,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testScanStreamSessionEicar($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $quahog->startSession();
         $result = $quahog->scanStream(self::EICAR);
@@ -214,7 +214,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testStatus($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
         $this->assertStringEndsWith("END", $quahog->stats());
     }
 
@@ -222,7 +222,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testPing($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
         $this->assertTrue($quahog->ping());
     }
 
@@ -230,7 +230,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function testVersion($address)
     {
         $socket = (new Factory())->createClient($address);
-        $quahog = new Client($socket, PHP_NORMAL_READ);
+        $quahog = new Client($socket, 30, PHP_NORMAL_READ);
         $this->assertNotEmpty($quahog->version());
     }
 

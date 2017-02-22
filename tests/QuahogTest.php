@@ -28,13 +28,14 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->socket = $this->getMockBuilder(Socket::class)->disableOriginalConstructor()->getMock();
-        $this->quahog = new Client($this->socket);
+        $this->quahog = new Client($this->socket, 30, PHP_NORMAL_READ);
         $this->root = vfsStream::setup('tmp');
     }
 
     public function testPingOK()
     {
-        $this->socket->expects($this->any())->method('read')->will($this->returnValue('PONG'));
+        $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
+        $this->socket->expects($this->any())->method('read')->will($this->returnValue("PONG\n"));
 
         $result = $this->quahog->ping();
 
@@ -45,7 +46,8 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(ConnectionException::class);
 
-        $this->socket->expects($this->any())->method('read')->will($this->returnValue(null));
+        $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
+        $this->socket->expects($this->any())->method('read')->will($this->returnValue(''));
 
         $result = $this->quahog->ping();
 
@@ -54,7 +56,8 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function testVersion()
     {
-        $this->socket->expects($this->any())->method('read')->will($this->returnValue('ClamAV 1.2.3'));
+        $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
+        $this->socket->expects($this->any())->method('read')->will($this->returnValue("ClamAV 1.2.3\n"));
 
         $result = $this->quahog->version();
 
@@ -63,7 +66,8 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function testStats()
     {
-        $this->socket->expects($this->any())->method('read')->will($this->returnValue('POOLS:'));
+        $this->socket->expects($this->any())->method('selectRead')->will($this->onConsecutiveCalls(true, true, true, false));
+        $this->socket->expects($this->any())->method('read')->will($this->onConsecutiveCalls("POOLS:\n", "BLA\n", "END\n"));
 
         $result = $this->quahog->stats();
 
@@ -72,7 +76,8 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function testReload()
     {
-        $this->socket->expects($this->any())->method('read')->will($this->returnValue('RELOADING'));
+        $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
+        $this->socket->expects($this->any())->method('read')->will($this->returnValue("RELOADING\n"));
 
         $result = $this->quahog->reload();
 
@@ -81,8 +86,9 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function testScanFile()
     {
+        $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->will(
-            $this->returnValue('/tmp/EICAR: Eicar-Test-Signature FOUND')
+            $this->returnValue("/tmp/EICAR: Eicar-Test-Signature FOUND\n")
         );
 
         $result = $this->quahog->scanFile('/tmp/EICAR');
@@ -95,8 +101,9 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function testMultiscanFile()
     {
+        $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->will(
-            $this->returnValue('/tmp/quahog/EICAR: Eicar-Test-Signature FOUND')
+            $this->returnValue("/tmp/quahog/EICAR: Eicar-Test-Signature FOUND\n")
         );
 
         $result = $this->quahog->multiscanFile('/tmp/quahog');
@@ -107,8 +114,9 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function testContScan()
     {
+        $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->will(
-            $this->returnValue('/tmp/quahog/EICAR: Eicar-Test-Signature FOUND')
+            $this->returnValue("/tmp/quahog/EICAR: Eicar-Test-Signature FOUND\n")
         );
 
         $result = $this->quahog->contScan('/tmp/quahog');
@@ -125,8 +133,9 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
             ->withContent('/tmp/EICAR: Eicar-Test-Signature FOUND')
             ->at($this->root);
 
+        $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->will(
-            $this->returnValue($file->url() . ': Eicar-Test-Signature FOUND')
+            $this->returnValue($file->url() . ": Eicar-Test-Signature FOUND\n")
         );
 
         $result = $this->quahog->scanLocalFile($file->url());
@@ -139,8 +148,9 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function testScanStream()
     {
+        $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->will(
-            $this->returnValue('stream: Eicar-Test-Signature FOUND')
+            $this->returnValue("stream: Eicar-Test-Signature FOUND\n")
         );
 
         $result = $this->quahog->scanStream('stream');
@@ -153,8 +163,27 @@ class QuahogTest extends \PHPUnit_Framework_TestCase
 
     public function testShutdown()
     {
+        $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
+        $this->socket->expects($this->any())->method('read')->will($this->returnValue(''));
         $result = $this->quahog->shutdown();
 
         $this->assertSame('', $result);
+    }
+
+    public function testSession() {
+        $this->socket->expects($this->any())->method('close')->willThrowException(new \Exception("Closed connection!"));
+        $this->socket->expects($this->any())->method('selectRead')->will($this->onConsecutiveCalls(true, true, true, true, false));
+        $this->socket->expects($this->any())->method('send')
+            ->withConsecutive([$this->equalTo("nIDSESSION\n"), $this->anything()],
+                [$this->equalTo("nVERSION\n"), $this->anything()],
+                [$this->equalTo("nSTATS\n"), $this->anything()]);
+        $this->socket->expects($this->any())->method('read')->will($this->onConsecutiveCalls("1: bla\n", "2: bla\n", "bla\n", "END\n"));
+
+        $this->quahog->startSession();
+
+        self::assertEquals('bla', $this->quahog->version());
+        self::assertEquals("bla\nbla\nEND", $this->quahog->stats());
+
+        $this->quahog->endSession();
     }
 }

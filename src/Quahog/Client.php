@@ -21,15 +21,25 @@ class Client
 
     /** @var bool $_inSession Has the current connection a Session? */
     private $_inSession = false;
+    /** @var int $_timeout Read timeout */
+    private $_timeout = 30;
+    private $_mode;
 
     /**
      * Instantiate a Quahog\Client instance.
      *
      * @param Socket $socket An instance of \Socket\Raw\Socket which points to clamd
+     * @param int $timeout
+     * @param int $mode
      */
-    public function __construct(Socket $socket)
+    public function __construct(Socket $socket, $timeout = 30, $mode = PHP_BINARY_READ)
     {
+        $this->_mode = $mode;
         $this->_socket = $socket;
+        $this->_timeout = $timeout;
+        if ($mode === PHP_BINARY_READ) {
+            trigger_error("Using binary read is deprecated and will be removed in a future release. Explicitly set $mode to PHP_NORMAL_READ to avoid this message.", E_USER_DEPRECATED);
+        }
     }
 
     /**
@@ -42,7 +52,7 @@ class Client
     {
         $this->_sendCommand('PING');
 
-        if ($this->_receiveResponse() === 'PONG') {
+        if ($this->_receiveResponse(true) === 'PONG') {
             return true;
         }
 
@@ -59,7 +69,7 @@ class Client
     {
         $this->_sendCommand('VERSION');
 
-        return $this->_receiveResponse();
+        return $this->_receiveResponse(true);
     }
 
     /**
@@ -71,7 +81,7 @@ class Client
     {
         $this->_sendCommand('STATS');
 
-        return $this->_receiveResponse();
+        return $this->_receiveResponse(true, "END\n");
     }
 
     /**
@@ -172,7 +182,7 @@ class Client
     /**
      * Scan a stream.
      *
-     * @param resource $stream A file stream in string form.
+     * @param resource $stream A file stream
      * @param int      $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
      *
      * @return string
@@ -257,14 +267,36 @@ class Client
     /**
      * A wrapper to cleanly read a response from clamd.
      *
+     * @param bool $removeId
+     * @param string $readUntil
      * @return string
+     * @throws ConnectionException
      */
-    private function _receiveResponse()
+    private function _receiveResponse($removeId = false, $readUntil = "\n")
     {
-        $result = $this->_socket->read(4096);
+        $result = null;
+        $readUntilLen = strlen($readUntil);
+        do {
+            if ($this->_socket->selectRead($this->_timeout)) {
+                $rt = $this->_socket->read(4096, $this->_mode);
+                if ($rt === "") {
+                    break;
+                }
+                $result .= $rt;
+                if (strcmp(substr($result, 0 - $readUntilLen), $readUntil) == 0) {
+                    break;
+                }
+            } else if ($this->_mode === PHP_NORMAL_READ) {
+                throw new ConnectionException("Timeout waiting to read response");
+            } else {
+                break;
+            }
+        } while (true);
 
         if (!$this->_inSession) {
             $this->_closeConnection();
+        } else if ($removeId) {
+            $result = preg_replace('/^\d+: /', "", $result, 1);
         }
 
         return trim($result);

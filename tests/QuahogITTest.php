@@ -6,8 +6,7 @@ use Xenolope\Quahog\Client;
 
 class QuahogITTest extends \PHPUnit_Framework_TestCase
 {
-    const EICAR = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STAND' . 'ARD-ANTIVIRUS-TEST-FILE!$H+H*';
-    protected $address = 'unix:///var/run/clamav/clamd.ctl';
+    const EICAR = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*';
 
     public static function setUpBeforeClass()
     {
@@ -18,17 +17,15 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     public function addresses()
     {
         $addresses = [];
-        if (array_key_exists('CLAM_UNIX_ADDRESS', $_SERVER)) {
-            if (!empty($_SERVER['CLAM_UNIX_ADDRESS'])) {
-                $addresses['unix'] = [$_SERVER['CLAM_UNIX_ADDRESS']];
-            }
+
+        if (isset($_SERVER['CLAM_UNIX_ADDRESS']) && !empty($_SERVER['CLAM_UNIX_ADDRESS'])) {
+            $addresses['unix'] = [$_SERVER['CLAM_UNIX_ADDRESS']];
         } else {
             $addresses['unix'] = ['unix:///var/run/clamav/clamd.ctl'];
         }
-        if (array_key_exists('CLAM_TCP_ADDRESS', $_SERVER)) {
-            if (!empty($_SERVER['CLAM_TCP_ADDRESS'])) {
-                $addresses['tcp'] = [$_SERVER['CLAM_TCP_ADDRESS']];
-            }
+
+        if (isset($_SERVER['CLAM_TCP_ADDRESS']) && !empty($_SERVER['CLAM_TCP_ADDRESS'])) {
+            $addresses['tcp'] = [$_SERVER['CLAM_TCP_ADDRESS']];
         } else {
             $addresses['tcp'] = ['tcp://127.0.0.1:3310'];
         }
@@ -36,7 +33,9 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         return $addresses;
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testScanStreamClean($address)
     {
         $socket = (new Factory())->createClient($address);
@@ -49,29 +48,31 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testScanStreamEicar($address)
     {
         $socket = (new Factory())->createClient($address);
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
-        $result = $quahog->scanStream(str_pad(self::EICAR, 1000, " ", STR_PAD_BOTH), 10);
+        $result = $quahog->scanStream(self::EICAR);
         $this->assertSame(
             ['filename' => 'stream', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
             $result
         );
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testScanFileClean($address)
     {
         $socket = (new Factory())->createClient($address);
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
 
-        $name = tempnam(sys_get_temp_dir(), "");
-        file_put_contents($name, "ABC");
-        chmod($name, 0777);
+        $name = $this->createTestFile('ABC');
 
         try {
             $result = $quahog->scanFile($name);
@@ -84,15 +85,15 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testScanFileEicar($address)
     {
         $socket = (new Factory())->createClient($address);
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
-        $name = tempnam(sys_get_temp_dir(), "");
-        file_put_contents($name, self::EICAR);
-        chmod($name, 0777);
+        $name = $this->createTestFile(self::EICAR);
 
         try {
             $result = $quahog->scanFile($name);
@@ -105,18 +106,18 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testScanResourceEicar($address)
     {
         $socket = (new Factory())->createClient($address);
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
-        $name = tempnam(sys_get_temp_dir(), "");
-        file_put_contents($name, self::EICAR);
-        chmod($name, 0777);
+        $name = $this->createTestFile(self::EICAR);
 
         try {
-            $result = $quahog->scanResourceStream(fopen($name,"r"));
+            $result = $quahog->scanResourceStream(fopen($name, "r"));
             $this->assertSame(
                 ['filename' => 'stream', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
                 $result
@@ -126,7 +127,9 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testScanMultiScanEicar($address)
     {
         $socket = (new Factory())->createClient($address);
@@ -155,7 +158,9 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testScanContScanEicar($address)
     {
         $socket = (new Factory())->createClient($address);
@@ -184,7 +189,9 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testScanStreamSessionEicar($address)
     {
         $socket = (new Factory())->createClient($address);
@@ -210,7 +217,9 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         $quahog->disconnect();
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testStatus($address)
     {
         $socket = (new Factory())->createClient($address);
@@ -218,7 +227,9 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         $this->assertStringEndsWith("END", $quahog->stats());
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testPing($address)
     {
         $socket = (new Factory())->createClient($address);
@@ -226,7 +237,9 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($quahog->ping());
     }
 
-    /** @dataProvider addresses */
+    /**
+     * @dataProvider addresses
+     */
     public function testVersion($address)
     {
         $socket = (new Factory())->createClient($address);
@@ -234,4 +247,18 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($quahog->version());
     }
 
+    /**
+     * Creates a physical temporary file and returns the filename
+     *
+     * @param string $content
+     * @return string
+     */
+    private function createTestFile($content)
+    {
+        $name = tempnam(sys_get_temp_dir(), "");
+        file_put_contents($name, $content);
+        chmod($name, 0777);
+
+        return $name;
+    }
 }

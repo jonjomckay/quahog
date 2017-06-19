@@ -6,6 +6,7 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          bootstrap="./vendor/autoload.php"
+         beStrictAboutTestsThatDoNotTestAnything="true"
         >
     <logging>
         <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>

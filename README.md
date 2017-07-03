@@ -41,6 +41,12 @@ $result = $quahog->multiscanFile('/tmp/virusdirectory');
 // Scan a stream, and optionally pass the maximum chunk size in bytes
 $result = $quahog->scanStream(file_get_contents('/tmp/virusfile'), 1024);
 
+// Scan multiple files in a row
+$quahog->startSession();
+$result = $quahog->scanFile('/tmp/virusfile');
+$result2 = $quahog->scanFile('/tmp/virusfile2');
+$quahog->endSession();
+
 // Ping clamd
 $result = $quahog->ping();
 
@@ -55,6 +61,7 @@ $quahog->reload();
 
 // Shutdown clamd cleanly
 $quahog->shutdown();
+
 ```
 
 ## Testing

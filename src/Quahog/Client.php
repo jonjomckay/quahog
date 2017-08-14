@@ -123,7 +123,7 @@ class Client
      *
      * @param string $file The location of the file to scan.
      *
-     * @return string
+     * @return array
      */
     public function scanFile($file)
     {
@@ -139,7 +139,7 @@ class Client
      *
      * @param string $file The location of the file or directory to scan.
      *
-     * @return string
+     * @return array
      */
     public function multiscanFile($file)
     {
@@ -155,7 +155,7 @@ class Client
      *
      * @param string $file The location of the file or directory to scan.
      *
-     * @return string
+     * @return array
      */
     public function contScan($file)
     {
@@ -172,7 +172,7 @@ class Client
      * @param string $file The location of the file to scan.
      * @param int    $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
      *
-     * @return string
+     * @return array
      */
     public function scanLocalFile($file, $maxChunkSize = 1024)
     {
@@ -185,7 +185,7 @@ class Client
      * @param resource $stream A file stream
      * @param int      $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
      *
-     * @return string
+     * @return array
      * @throws InvalidArgumentException
      */
     public function scanResourceStream($stream, $maxChunkSize = 1024)
@@ -215,7 +215,7 @@ class Client
      * @param string $stream A file stream in string form.
      * @param int    $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
      *
-     * @return string
+     * @return array
      */
     public function scanStream($stream, $maxChunkSize = 1024)
     {

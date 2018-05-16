@@ -23,7 +23,7 @@
     "clue/socket-raw": "^1.2"
   },
   "require-dev": {
-    "phpunit/phpunit": "^4.8",
+    "phpunit/phpunit": "^5.7",
     "mikey179/vfsStream": "^1.6"
   }
 }

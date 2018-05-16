@@ -1,10 +1,11 @@
 <?php
 namespace Xenolope\Quahog\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Socket\Raw\Factory;
 use Xenolope\Quahog\Client;
 
-class QuahogITTest extends \PHPUnit_Framework_TestCase
+class QuahogITTest extends TestCase
 {
     const EICAR = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*';
 
@@ -42,7 +43,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $result = $quahog->scanStream("ABC");
-        $this->assertSame(
+        self::assertSame(
             ['filename' => 'stream', 'reason' => null, 'status' => 'OK'],
             $result
         );
@@ -57,7 +58,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $result = $quahog->scanStream(self::EICAR);
-        $this->assertSame(
+        self::assertSame(
             ['filename' => 'stream', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
             $result
         );
@@ -76,7 +77,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
 
         try {
             $result = $quahog->scanFile($name);
-            $this->assertSame(
+            self::assertSame(
                 ['filename' => $name, 'reason' => null, 'status' => 'OK'],
                 $result
             );
@@ -97,7 +98,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
 
         try {
             $result = $quahog->scanFile($name);
-            $this->assertSame(
+            self::assertSame(
                 ['filename' => $name, 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
                 $result
             );
@@ -118,7 +119,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
 
         try {
             $result = $quahog->scanResourceStream(fopen($name, "r"));
-            $this->assertSame(
+            self::assertSame(
                 ['filename' => 'stream', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
                 $result
             );
@@ -147,7 +148,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         chmod($file2, 0777);
         try {
             $result = $quahog->multiscanFile($name);
-            $this->assertSame(
+            self::assertSame(
                 ['filename' => $file2, 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
                 $result
             );
@@ -178,7 +179,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
         chmod($file2, 0777);
         try {
             $result = $quahog->contScan($name);
-            $this->assertSame(
+            self::assertSame(
                 ['filename' => $file2, 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
                 $result
             );
@@ -199,17 +200,17 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
 
         $quahog->startSession();
         $result = $quahog->scanStream(self::EICAR);
-        $this->assertSame(
+        self::assertSame(
             ['id' => '1', 'filename' => "stream", 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
             $result
         );
         $result = $quahog->scanStream(self::EICAR);
-        $this->assertSame(
+        self::assertSame(
             ['id' => '2', 'filename' => "stream", 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
             $result
         );
         $result = $quahog->scanStream('ABC');
-        $this->assertSame(
+        self::assertSame(
             ['id' => '3', 'filename' => "stream", 'reason' => null, 'status' => 'OK'],
             $result
         );
@@ -224,7 +225,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     {
         $socket = (new Factory())->createClient($address);
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
-        $this->assertStringEndsWith("END", $quahog->stats());
+        self::assertStringEndsWith("END", $quahog->stats());
     }
 
     /**
@@ -234,7 +235,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     {
         $socket = (new Factory())->createClient($address);
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
-        $this->assertTrue($quahog->ping());
+        self::assertTrue($quahog->ping());
     }
 
     /**
@@ -244,7 +245,7 @@ class QuahogITTest extends \PHPUnit_Framework_TestCase
     {
         $socket = (new Factory())->createClient($address);
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
-        $this->assertNotEmpty($quahog->version());
+        self::assertNotEmpty($quahog->version());
     }
 
     /**

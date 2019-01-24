@@ -92,10 +92,9 @@ class QuahogTest extends TestCase
 
         $result = $this->quahog->scanFile('/tmp/EICAR');
 
-        self::assertSame(
-            array('filename' => '/tmp/EICAR', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'),
-            $result
-        );
+        self::assertSame('/tmp/EICAR', $result->getFilename());
+        self::assertSame('Eicar-Test-Signature', $result->getReason());
+        self::assertTrue($result->found());
     }
 
     public function testMultiscanFile()
@@ -105,8 +104,8 @@ class QuahogTest extends TestCase
 
         $result = $this->quahog->multiscanFile('/tmp/quahog');
 
-        self::assertSame('Eicar-Test-Signature', $result['reason']);
-        self::assertSame('FOUND', $result['status']);
+        self::assertSame('Eicar-Test-Signature', $result->getReason());
+        self::assertTrue($result->found());
     }
 
     public function testContScan()
@@ -116,10 +115,9 @@ class QuahogTest extends TestCase
 
         $result = $this->quahog->contScan('/tmp/quahog');
 
-        self::assertSame(
-            ['filename' => '/tmp/quahog/EICAR', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
-            $result
-        );
+        self::assertSame('/tmp/quahog/EICAR', $result->getFilename());
+        self::assertSame('Eicar-Test-Signature', $result->getReason());
+        self::assertTrue($result->found());
     }
 
     public function testScanLocalFile()
@@ -133,10 +131,9 @@ class QuahogTest extends TestCase
 
         $result = $this->quahog->scanLocalFile($file->url());
 
-        self::assertSame(
-            ['filename' => $file->url(), 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
-            $result
-        );
+        self::assertSame($file->url(), $result->getFilename());
+        self::assertSame('Eicar-Test-Signature', $result->getReason());
+        self::assertTrue($result->found());
     }
 
     public function testScanStream()
@@ -146,10 +143,9 @@ class QuahogTest extends TestCase
 
         $result = $this->quahog->scanStream('stream');
 
-        self::assertSame(
-            ['filename' => 'stream', 'reason' => 'Eicar-Test-Signature', 'status' => 'FOUND'],
-            $result
-        );
+        self::assertSame('stream', $result->getFilename());
+        self::assertSame('Eicar-Test-Signature', $result->getReason());
+        self::assertTrue($result->found());
     }
 
     public function testShutdown()

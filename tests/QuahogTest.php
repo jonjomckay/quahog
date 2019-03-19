@@ -94,7 +94,7 @@ class QuahogTest extends TestCase
 
         self::assertSame('/tmp/EICAR', $result->getFilename());
         self::assertSame('Eicar-Test-Signature', $result->getReason());
-        self::assertTrue($result->found());
+        self::assertTrue($result->isFound());
     }
 
     public function testMultiscanFile()
@@ -105,7 +105,7 @@ class QuahogTest extends TestCase
         $result = $this->quahog->multiscanFile('/tmp/quahog');
 
         self::assertSame('Eicar-Test-Signature', $result->getReason());
-        self::assertTrue($result->found());
+        self::assertTrue($result->isFound());
     }
 
     public function testContScan()
@@ -117,7 +117,7 @@ class QuahogTest extends TestCase
 
         self::assertSame('/tmp/quahog/EICAR', $result->getFilename());
         self::assertSame('Eicar-Test-Signature', $result->getReason());
-        self::assertTrue($result->found());
+        self::assertTrue($result->isFound());
     }
 
     public function testScanLocalFile()
@@ -133,7 +133,7 @@ class QuahogTest extends TestCase
 
         self::assertSame($file->url(), $result->getFilename());
         self::assertSame('Eicar-Test-Signature', $result->getReason());
-        self::assertTrue($result->found());
+        self::assertTrue($result->isFound());
     }
 
     public function testScanStream()
@@ -145,7 +145,7 @@ class QuahogTest extends TestCase
 
         self::assertSame('stream', $result->getFilename());
         self::assertSame('Eicar-Test-Signature', $result->getReason());
-        self::assertTrue($result->found());
+        self::assertTrue($result->isFound());
     }
 
     public function testShutdown()

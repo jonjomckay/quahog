@@ -14,11 +14,11 @@ class ResultTest extends TestCase
         $result = new Result('OK', 'filename', null, null);
 
         self::assertSame('filename', $result->getFilename());
-        self::assertTrue($result->ok());
+        self::assertTrue($result->isOk());
         self::assertNull($result->getId());
         self::assertNull($result->getReason());
-        self::assertFalse($result->error());
-        self::assertFalse($result->found());
+        self::assertFalse($result->isError());
+        self::assertFalse($result->isFound());
     }
 
     public function testVirusFound(): void
@@ -28,10 +28,10 @@ class ResultTest extends TestCase
         self::assertSame('filename', $result->getFilename());
         self::assertSame('evilvirus', $result->getReason());
         self::assertSame('1', $result->getId());
-        self::assertFalse($result->ok());
-        self::assertTrue($result->failed());
-        self::assertFalse($result->error());
-        self::assertTrue($result->found());
+        self::assertFalse($result->isOk());
+        self::assertTrue($result->hasFailed());
+        self::assertFalse($result->isError());
+        self::assertTrue($result->isFound());
     }
 
     public function testError(): void
@@ -41,10 +41,10 @@ class ResultTest extends TestCase
         self::assertSame('filename', $result->getFilename());
         self::assertSame('broken', $result->getReason());
         self::assertSame('1', $result->getId());
-        self::assertFalse($result->ok());
-        self::assertTrue($result->failed());
-        self::assertTrue($result->error());
-        self::assertFalse($result->found());
+        self::assertFalse($result->isOk());
+        self::assertTrue($result->hasFailed());
+        self::assertTrue($result->isError());
+        self::assertFalse($result->isFound());
     }
 
     public function testUndefinedFailure(): void
@@ -54,9 +54,9 @@ class ResultTest extends TestCase
         self::assertSame('filename', $result->getFilename());
         self::assertSame('text', $result->getReason());
         self::assertSame('1', $result->getId());
-        self::assertFalse($result->ok());
-        self::assertTrue($result->failed());
-        self::assertFalse($result->error());
-        self::assertFalse($result->found());
+        self::assertFalse($result->isOk());
+        self::assertTrue($result->hasFailed());
+        self::assertFalse($result->isError());
+        self::assertFalse($result->isFound());
     }
 }

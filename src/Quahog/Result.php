@@ -30,6 +30,12 @@ class Result
      */
     private $status;
 
+    /**
+     * @param string      $status
+     * @param string      $filename
+     * @param null|string $reason
+     * @param null|string $id
+     */
     public function __construct(string $status, string $filename, ?string $reason, ?string $id)
     {
         $this->status   = $status;
@@ -39,7 +45,9 @@ class Result
     }
 
     /**
-     * @return string
+     * Returns a result id of a session was used.
+     *
+     * @return null|string
      */
     public function getId(): ?string
     {
@@ -47,6 +55,8 @@ class Result
     }
 
     /**
+     * Returns the filename of the scanned file.
+     *
      * @return string
      */
     public function getFilename(): string
@@ -55,6 +65,8 @@ class Result
     }
 
     /**
+     * Returns an explanation in case the scan found a virus or an error.
+     *
      * @return null|string
      */
     public function getReason(): ?string
@@ -63,33 +75,41 @@ class Result
     }
 
     /**
+     * Returns true if no errors and no virus are found.
+     *
      * @return bool
      */
-    public function ok(): bool
+    public function isOk(): bool
     {
         return $this->status === self::RESULT_OK;
     }
 
     /**
+     * Returns true if errors or a virus are found.
+     *
      * @return bool
      */
-    public function failed(): bool
+    public function hasFailed(): bool
     {
         return $this->status !== self::RESULT_OK;
     }
 
     /**
+     * Returns true if a virus was found.
+     *
      * @return bool
      */
-    public function found(): bool
+    public function isFound(): bool
     {
         return $this->status === self::RESULT_FOUND;
     }
 
     /**
+     * Returns true if an error was found.
+     *
      * @return bool
      */
-    public function error(): bool
+    public function isError(): bool
     {
         return $this->status === self::RESULT_ERROR;
     }

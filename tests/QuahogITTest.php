@@ -1,4 +1,5 @@
 <?php
+
 namespace Xenolope\Quahog\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -43,10 +44,10 @@ class QuahogITTest extends TestCase
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $result = $quahog->scanStream("ABC");
-        self::assertSame(
-            ['filename' => 'stream', 'reason' => null, 'status' => 'OK'],
-            $result
-        );
+
+        self::assertSame('stream', $result->getFilename());
+        self::assertNull($result->getReason());
+        self::assertTrue($result->isOk());
     }
 
     /**
@@ -58,10 +59,10 @@ class QuahogITTest extends TestCase
         $quahog = new Client($socket, 30, PHP_NORMAL_READ);
 
         $result = $quahog->scanStream(self::EICAR);
-        self::assertSame(
-            ['filename' => 'stream', 'reason' => 'Win.Test.EICAR_HDB-1', 'status' => 'FOUND'],
-            $result
-        );
+
+        self::assertSame('stream', $result->getFilename());
+        self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
+        self::assertTrue($result->isFound());
     }
 
     /**
@@ -77,10 +78,10 @@ class QuahogITTest extends TestCase
 
         try {
             $result = $quahog->scanFile($name);
-            self::assertSame(
-                ['filename' => $name, 'reason' => null, 'status' => 'OK'],
-                $result
-            );
+
+            self::assertSame($name, $result->getFilename());
+            self::assertNull($result->getReason());
+            self::assertTrue($result->isOk());
         } finally {
             unlink($name);
         }
@@ -98,10 +99,10 @@ class QuahogITTest extends TestCase
 
         try {
             $result = $quahog->scanFile($name);
-            self::assertSame(
-                ['filename' => $name, 'reason' => 'Win.Test.EICAR_HDB-1', 'status' => 'FOUND'],
-                $result
-            );
+
+            self::assertSame($name, $result->getFilename());
+            self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
+            self::assertTrue($result->isFound());
         } finally {
             unlink($name);
         }
@@ -119,10 +120,10 @@ class QuahogITTest extends TestCase
 
         try {
             $result = $quahog->scanResourceStream(fopen($name, "r"));
-            self::assertSame(
-                ['filename' => 'stream', 'reason' => 'Win.Test.EICAR_HDB-1', 'status' => 'FOUND'],
-                $result
-            );
+
+            self::assertSame('stream', $result->getFilename());
+            self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
+            self::assertTrue($result->isFound());
         } finally {
             unlink($name);
         }
@@ -148,10 +149,10 @@ class QuahogITTest extends TestCase
         chmod($file2, 0777);
         try {
             $result = $quahog->multiscanFile($name);
-            self::assertSame(
-                ['filename' => $file2, 'reason' => 'Win.Test.EICAR_HDB-1', 'status' => 'FOUND'],
-                $result
-            );
+
+            self::assertSame($file2, $result->getFilename());
+            self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
+            self::assertTrue($result->isFound());
         } finally {
             unlink($file1);
             unlink($file2);
@@ -179,10 +180,10 @@ class QuahogITTest extends TestCase
         chmod($file2, 0777);
         try {
             $result = $quahog->contScan($name);
-            self::assertSame(
-                ['filename' => $file2, 'reason' => 'Win.Test.EICAR_HDB-1', 'status' => 'FOUND'],
-                $result
-            );
+
+            self::assertSame($file2, $result->getFilename());
+            self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
+            self::assertTrue($result->isFound());
         } finally {
             unlink($file1);
             unlink($file2);
@@ -200,20 +201,23 @@ class QuahogITTest extends TestCase
 
         $quahog->startSession();
         $result = $quahog->scanStream(self::EICAR);
-        self::assertSame(
-            ['id' => '1', 'filename' => "stream", 'reason' => 'Win.Test.EICAR_HDB-1', 'status' => 'FOUND'],
-            $result
-        );
+
+        self::assertSame('stream', $result->getFilename());
+        self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
+        self::assertSame('1', $result->getId());
+        self::assertTrue($result->isFound());
+
         $result = $quahog->scanStream(self::EICAR);
-        self::assertSame(
-            ['id' => '2', 'filename' => "stream", 'reason' => 'Win.Test.EICAR_HDB-1', 'status' => 'FOUND'],
-            $result
-        );
+        self::assertSame('stream', $result->getFilename());
+        self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
+        self::assertSame('2', $result->getId());
+        self::assertTrue($result->isFound());
+
         $result = $quahog->scanStream('ABC');
-        self::assertSame(
-            ['id' => '3', 'filename' => "stream", 'reason' => null, 'status' => 'OK'],
-            $result
-        );
+        self::assertSame('stream', $result->getFilename());
+        self::assertSame('3', $result->getId());
+        self::assertTrue($result->isOk());
+
         $quahog->endSession();
         $quahog->disconnect();
     }

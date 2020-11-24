@@ -123,7 +123,7 @@ class Client
      *
      * @param string $file The location of the file to scan.
      *
-     * @return array
+     * @return Result
      */
     public function scanFile($file)
     {
@@ -139,7 +139,7 @@ class Client
      *
      * @param string $file The location of the file or directory to scan.
      *
-     * @return array
+     * @return Result
      */
     public function multiscanFile($file)
     {
@@ -155,7 +155,7 @@ class Client
      *
      * @param string $file The location of the file or directory to scan.
      *
-     * @return array
+     * @return Result
      */
     public function contScan($file)
     {
@@ -172,7 +172,7 @@ class Client
      * @param string $file The location of the file to scan.
      * @param int    $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
      *
-     * @return array
+     * @return Result
      */
     public function scanLocalFile($file, $maxChunkSize = 1024)
     {
@@ -185,7 +185,7 @@ class Client
      * @param resource $stream A file stream
      * @param int      $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
      *
-     * @return array
+     * @return Result
      * @throws InvalidArgumentException
      */
     public function scanResourceStream($stream, $maxChunkSize = 1024)
@@ -215,7 +215,7 @@ class Client
      * @param string $stream A file stream in string form.
      * @param int    $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
      *
-     * @return array
+     * @return Result
      */
     public function scanStream($stream, $maxChunkSize = 1024)
     {
@@ -325,31 +325,30 @@ class Client
      *
      * @param string $response
      *
-     * @return array
+     * @return Result
      */
     private function _parseResponse($response)
     {
         $splitResponse = explode(': ', $response);
 
-        $idReturn = [];
+        $id = null;
         if (!$this->_inSession) {
             $filename = $splitResponse[0];
             $message = $splitResponse[1];
-        }
-        else {
-            $idReturn = ['id' => $splitResponse[0]];
+        } else {
+            $id = $splitResponse[0];
             $filename = $splitResponse[1];
             $message = $splitResponse[2];
         }
 
         if ($message === self::RESULT_OK) {
-            return $idReturn + ['filename' => $filename, 'reason' => null, 'status' => self::RESULT_OK];
-        } else {
-            $parts = explode(' ', $message);
-            $status = array_pop($parts);
-            $reason = implode(' ', $parts);
-
-            return $idReturn + ['filename' => $filename, 'reason' => $reason, 'status' => $status];
+            return new Result(self::RESULT_OK, $filename, null, $id);
         }
+
+        $parts = explode(' ', $message);
+        $status = array_pop($parts);
+        $reason = implode(' ', $parts);
+
+        return new Result($status, $filename, $reason, $id);
     }
 }

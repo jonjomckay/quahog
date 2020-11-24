@@ -64,6 +64,34 @@ $quahog->shutdown();
 
 ```
 
+### Working with the result
+
+``` php
+// Result is an instance of \Xenolope\Quahog\Result.
+$result = $quahog->scanFile('/tmp/virusfile');
+
+// A result id of a session that was used.
+$result->getId();
+
+// The file name of the scanned file.
+$result->getFilename();
+
+// The reason why a scan resulted in a failure. Returns null if the scan was successful.
+$result->getReason();
+
+// A boolean value that is true, in case the scan was successful.
+$result->isOk();
+
+// A boolean value that is true, in case the scan failed. This is the opposite of isOk().
+$result->hasFailed();
+
+// A boolean value that is true, if a virus was found.
+$result->isFound();
+
+// A boolean value that is true, if an error happened.
+$result->isError();
+```
+
 ## Testing
 
 To run the test suite you will need PHPUnit installed. Go to the project root and run:

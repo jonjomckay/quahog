@@ -159,7 +159,7 @@ class QuahogTest extends TestCase
         self::assertSame('', $result);
     }
 
-    public function testSession()
+    public function testSession(): void
     {
         $this->socket->expects($this->any())->method('close')->willThrowException(new Exception("Closed connection!"));
         $this->socket->expects($this->any())->method('selectRead')->willReturnOnConsecutiveCalls(true, true, true, true, false);

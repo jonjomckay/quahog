@@ -15,7 +15,7 @@ It is recommended to install Quahog through [composer](http://getcomposer.org).
 ```JSON
 {
     "require": {
-        "xenolope/quahog": "2.*"
+        "xenolope/quahog": "3.*"
     }
 }
 ```

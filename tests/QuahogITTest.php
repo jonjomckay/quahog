@@ -61,7 +61,7 @@ class QuahogITTest extends TestCase
         $result = $quahog->scanStream(self::EICAR);
 
         self::assertSame('stream', $result->getFilename());
-        self::assertSame('Eicar-Test-Signature', $result->getReason());
+        self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
         self::assertTrue($result->isFound());
     }
 
@@ -101,7 +101,7 @@ class QuahogITTest extends TestCase
             $result = $quahog->scanFile($name);
 
             self::assertSame($name, $result->getFilename());
-            self::assertSame('Eicar-Test-Signature', $result->getReason());
+            self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
             self::assertTrue($result->isFound());
         } finally {
             unlink($name);
@@ -122,7 +122,7 @@ class QuahogITTest extends TestCase
             $result = $quahog->scanResourceStream(fopen($name, "r"));
 
             self::assertSame('stream', $result->getFilename());
-            self::assertSame('Eicar-Test-Signature', $result->getReason());
+            self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
             self::assertTrue($result->isFound());
         } finally {
             unlink($name);
@@ -151,7 +151,7 @@ class QuahogITTest extends TestCase
             $result = $quahog->multiscanFile($name);
 
             self::assertSame($file2, $result->getFilename());
-            self::assertSame('Eicar-Test-Signature', $result->getReason());
+            self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
             self::assertTrue($result->isFound());
         } finally {
             unlink($file1);
@@ -182,7 +182,7 @@ class QuahogITTest extends TestCase
             $result = $quahog->contScan($name);
 
             self::assertSame($file2, $result->getFilename());
-            self::assertSame('Eicar-Test-Signature', $result->getReason());
+            self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
             self::assertTrue($result->isFound());
         } finally {
             unlink($file1);
@@ -203,13 +203,13 @@ class QuahogITTest extends TestCase
         $result = $quahog->scanStream(self::EICAR);
 
         self::assertSame('stream', $result->getFilename());
-        self::assertSame('Eicar-Test-Signature', $result->getReason());
+        self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
         self::assertSame('1', $result->getId());
         self::assertTrue($result->isFound());
 
         $result = $quahog->scanStream(self::EICAR);
         self::assertSame('stream', $result->getFilename());
-        self::assertSame('Eicar-Test-Signature', $result->getReason());
+        self::assertSame('Win.Test.EICAR_HDB-1', $result->getReason());
         self::assertSame('2', $result->getId());
         self::assertTrue($result->isFound());
 

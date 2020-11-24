@@ -24,7 +24,8 @@ It is recommended to install Quahog through [composer](http://getcomposer.org).
 
 ```php
 // Create a new socket instance
-$socket = (new \Socket\Raw\Factory())->createClient('unix:///var/run/clamav/clamd.ctl');
+$socket = (new \Socket\Raw\Factory())->createClient('unix:///var/run/clamav/clamd.ctl'); # Using a UNIX socket
+$socket = (new \Socket\Raw\Factory())->createClient('tcp://192.168.1.1:3310'); # Using a TCP socket
 
 // Create a new instance of the Client
 $quahog = new \Xenolope\Quahog\Client($socket);

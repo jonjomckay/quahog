@@ -10,13 +10,13 @@ class QuahogITTest extends TestCase
 {
     const EICAR = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*';
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         umask(0);
     }
 
-    public function addresses()
+    public function addresses(): array
     {
         $addresses = [];
 
@@ -258,7 +258,7 @@ class QuahogITTest extends TestCase
      * @param string $content
      * @return string
      */
-    private function createTestFile($content)
+    private function createTestFile($content): string
     {
         $name = tempnam(sys_get_temp_dir(), "");
         file_put_contents($name, $content);

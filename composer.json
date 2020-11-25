@@ -19,11 +19,11 @@
     }
   },
   "require": {
-    "php": ">=7.2",
+    "php": ">=7.3",
     "clue/socket-raw": "^1.3"
   },
   "require-dev": {
-    "phpunit/phpunit": "^7.3",
+    "phpunit/phpunit": "^9.4",
     "mikey179/vfsstream": "^1.6"
   }
 }

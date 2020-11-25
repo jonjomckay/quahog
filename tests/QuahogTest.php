@@ -2,6 +2,8 @@
 
 namespace Xenolope\Quahog\Tests;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Socket\Raw\Socket;
 use Xenolope\Quahog\Client;
@@ -12,12 +14,12 @@ use Xenolope\Quahog\Exception\ConnectionException;
 class QuahogTest extends TestCase
 {
     /**
-     * @var \Socket\Raw\Socket|\PHPUnit_Framework_MockObject_MockObject
+     * @var Socket|MockObject
      */
     private $socket;
 
     /**
-     * @var Client|\PHPUnit_Framework_MockObject_MockObject
+     * @var Client|MockObject
      */
     private $quahog;
 
@@ -26,7 +28,7 @@ class QuahogTest extends TestCase
      */
     private $root;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->socket = $this->createMock(Socket::class);
         $this->quahog = new Client($this->socket, 30, PHP_NORMAL_READ);
@@ -157,8 +159,9 @@ class QuahogTest extends TestCase
         self::assertSame('', $result);
     }
 
-    public function testSession() {
-        $this->socket->expects($this->any())->method('close')->willThrowException(new \Exception("Closed connection!"));
+    public function testSession(): void
+    {
+        $this->socket->expects($this->any())->method('close')->willThrowException(new Exception("Closed connection!"));
         $this->socket->expects($this->any())->method('selectRead')->willReturnOnConsecutiveCalls(true, true, true, true, false);
         $this->socket->expects($this->any())->method('send')
             ->withConsecutive([$this->equalTo("nIDSESSION\n"), $this->anything()],

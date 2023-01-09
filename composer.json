@@ -19,11 +19,19 @@
     }
   },
   "require": {
-    "php": ">=7.3",
-    "clue/socket-raw": "^1.3"
+    "php": ">=8.0",
+    "ext-sockets": "*",
+    "clue/socket-raw": "^1.6"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.4",
-    "mikey179/vfsstream": "^1.6"
+    "phpunit/phpunit": "^9.5",
+    "mikey179/vfsstream": "^1.6",
+    "phpstan/phpstan": "^1.9",
+    "doctrine/coding-standard": "^11.1"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
   }
 }

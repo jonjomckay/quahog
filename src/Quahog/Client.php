@@ -35,19 +35,11 @@ class Client
     /** Has the current connection a Session? */
     private bool $inSession = false;
 
-    /** Read timeout */
-    private int $timeout;
-
-    /** Read timeout */
-    private int $mode;
-
     /**
      * Instantiate a Quahog\Client instance.
      */
-    public function __construct(private Socket $socket, int $timeout = 30, int $mode = PHP_NORMAL_READ)
+    public function __construct(private Socket $socket, private int $timeout = 30, private int $mode = PHP_NORMAL_READ)
     {
-        $this->mode    = $mode;
-        $this->timeout = $timeout;
     }
 
     /**
@@ -272,9 +264,9 @@ class Client
                 }
             } elseif ($this->mode === PHP_NORMAL_READ) {
                 throw new ConnectionException('Timeout waiting to read response');
+            } else {
+                break;
             }
-
-            break;
         } while (true);
 
         if (! $this->inSession) {

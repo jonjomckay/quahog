@@ -1,41 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xenolope\Quahog\Tests;
 
 use Exception;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Socket\Raw\Socket;
 use Xenolope\Quahog\Client;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 use Xenolope\Quahog\Exception\ConnectionException;
+
+use const PHP_NORMAL_READ;
 
 class QuahogTest extends TestCase
 {
-    /**
-     * @var Socket|MockObject
-     */
-    private $socket;
+    private MockObject $socket;
 
-    /**
-     * @var Client|MockObject
-     */
-    private $quahog;
+    private Client $quahog;
 
-    /**
-     * @var vfsStreamDirectory
-     */
-    private $root;
+    private vfsStreamDirectory $root;
 
     public function setUp(): void
     {
         $this->socket = $this->createMock(Socket::class);
         $this->quahog = new Client($this->socket, 30, PHP_NORMAL_READ);
-        $this->root = vfsStream::setup('tmp');
+        $this->root   = vfsStream::setup('tmp');
     }
 
-    public function testPingOK()
+    public function testPingOK(): void
     {
         $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->willReturn("PONG\n");
@@ -45,7 +40,7 @@ class QuahogTest extends TestCase
         self::assertTrue($result);
     }
 
-    public function testPingFail()
+    public function testPingFail(): void
     {
         $this->expectException(ConnectionException::class);
 
@@ -57,7 +52,7 @@ class QuahogTest extends TestCase
         self::assertTrue($result);
     }
 
-    public function testVersion()
+    public function testVersion(): void
     {
         $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->willReturn("ClamAV 1.2.3\n");
@@ -67,7 +62,7 @@ class QuahogTest extends TestCase
         self::assertStringStartsWith('ClamAV', $result);
     }
 
-    public function testStats()
+    public function testStats(): void
     {
         $this->socket->expects($this->any())->method('selectRead')->willReturnOnConsecutiveCalls(true, true, true, false);
         $this->socket->expects($this->any())->method('read')->willReturnOnConsecutiveCalls("POOLS:\n", "BLA\n", "END\n");
@@ -77,7 +72,7 @@ class QuahogTest extends TestCase
         self::assertStringStartsWith('POOLS:', $result);
     }
 
-    public function testReload()
+    public function testReload(): void
     {
         $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->willReturn("RELOADING\n");
@@ -87,7 +82,7 @@ class QuahogTest extends TestCase
         self::assertSame('RELOADING', $result);
     }
 
-    public function testScanFile()
+    public function testScanFile(): void
     {
         $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->willReturn("/tmp/EICAR: Eicar-Test-Signature FOUND\n");
@@ -99,7 +94,7 @@ class QuahogTest extends TestCase
         self::assertTrue($result->isFound());
     }
 
-    public function testMultiscanFile()
+    public function testMultiscanFile(): void
     {
         $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->willReturn("/tmp/quahog/EICAR: Eicar-Test-Signature FOUND\n");
@@ -110,7 +105,7 @@ class QuahogTest extends TestCase
         self::assertTrue($result->isFound());
     }
 
-    public function testContScan()
+    public function testContScan(): void
     {
         $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->willReturn("/tmp/quahog/EICAR: Eicar-Test-Signature FOUND\n");
@@ -122,7 +117,7 @@ class QuahogTest extends TestCase
         self::assertTrue($result->isFound());
     }
 
-    public function testScanLocalFile()
+    public function testScanLocalFile(): void
     {
         $file = vfsStream::newFile('EICAR')
             ->withContent('/tmp/EICAR: Eicar-Test-Signature FOUND')
@@ -138,7 +133,7 @@ class QuahogTest extends TestCase
         self::assertTrue($result->isFound());
     }
 
-    public function testScanStream()
+    public function testScanStream(): void
     {
         $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->willReturn("stream: Eicar-Test-Signature FOUND\n");
@@ -150,7 +145,7 @@ class QuahogTest extends TestCase
         self::assertTrue($result->isFound());
     }
 
-    public function testShutdown()
+    public function testShutdown(): void
     {
         $this->socket->expects($this->once())->method('selectRead')->willReturn(true);
         $this->socket->expects($this->any())->method('read')->willReturn('');
@@ -161,12 +156,14 @@ class QuahogTest extends TestCase
 
     public function testSession(): void
     {
-        $this->socket->expects($this->any())->method('close')->willThrowException(new Exception("Closed connection!"));
+        $this->socket->expects($this->any())->method('close')->willThrowException(new Exception('Closed connection!'));
         $this->socket->expects($this->any())->method('selectRead')->willReturnOnConsecutiveCalls(true, true, true, true, false);
         $this->socket->expects($this->any())->method('send')
-            ->withConsecutive([$this->equalTo("nIDSESSION\n"), $this->anything()],
+            ->withConsecutive(
+                [$this->equalTo("nIDSESSION\n"), $this->anything()],
                 [$this->equalTo("nVERSION\n"), $this->anything()],
-                [$this->equalTo("nSTATS\n"), $this->anything()]);
+                [$this->equalTo("nSTATS\n"), $this->anything()],
+            );
         $this->socket->expects($this->any())->method('read')->willReturnOnConsecutiveCalls("1: bla\n", "2: bla\n", "bla\n", "END\n");
 
         $this->quahog->startSession();

@@ -1,5 +1,10 @@
-<?php namespace Quahog;
+<?php
 
-function file_get_contents($file) {
-  return $file;
+declare(strict_types=1);
+
+namespace Quahog;
+
+function file_get_contents(string $file): string
+{
+    return $file;
 }

@@ -13,7 +13,7 @@ jobs:
     - name: "Setup PHP Action"
       uses: "shivammathur/setup-php@v2"
       with:
-        php-version: "8.0"
+        php-version: "8.1"
         extensions: "sockets"
 
     - name: "Install dependencies with Composer"

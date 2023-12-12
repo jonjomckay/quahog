@@ -1,12 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xenolope\Quahog\Exception;
 
-/**
- * Class ConnectionException
- * @package Quahog\Exception
- */
-class ConnectionException extends \Exception
-{
+use Exception;
 
+class ConnectionException extends Exception
+{
 }

@@ -1,0 +1,25 @@
+name: Coding Standard
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  analysis:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: "actions/checkout@v4"
+
+    - name: "Setup PHP Action"
+      uses: "shivammathur/setup-php@v2"
+      with:
+        php-version: "8.1"
+        extensions: "sockets"
+
+    - name: "Install dependencies with Composer"
+      uses: "ramsey/composer-install@v2"
+      with:
+        composer-options: "--prefer-dist --no-progress --no-suggest"
+
+    - name: "Code Sniffer"
+      run: vendor/bin/phpcs

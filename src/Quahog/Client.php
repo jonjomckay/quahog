@@ -1,351 +1,306 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xenolope\Quahog;
 
 use InvalidArgumentException;
-use Xenolope\Quahog\Exception\ConnectionException;
 use Socket\Raw\Socket;
+use Xenolope\Quahog\Exception\ConnectionException;
 
-/**
- * Class Client
- * @package Quahog
- */
+use function array_pop;
+use function assert;
+use function explode;
+use function file_get_contents;
+use function fread;
+use function implode;
+use function is_resource;
+use function is_string;
+use function pack;
+use function preg_replace;
+use function sprintf;
+use function strcmp;
+use function strlen;
+use function substr;
+use function trim;
+
+use const MSG_DONTROUTE;
+use const PHP_EOL;
+use const PHP_NORMAL_READ;
+
 class Client
 {
-    const RESULT_OK = 'OK';
-    const RESULT_FOUND = 'FOUND';
-    const RESULT_ERROR = 'ERROR';
+    private const RESULT_OK = 'OK';
 
-    /** @var Socket $_socket */
-    private $_socket;
-
-    /** @var bool $_inSession Has the current connection a Session? */
-    private $_inSession = false;
-    /** @var int $_timeout Read timeout */
-    private $_timeout = 30;
-    private $_mode;
+    /** Has the current connection a Session? */
+    private bool $inSession = false;
 
     /**
      * Instantiate a Quahog\Client instance.
-     *
-     * @param Socket $socket An instance of \Socket\Raw\Socket which points to clamd
-     * @param int $timeout
-     * @param int $mode
      */
-    public function __construct(Socket $socket, $timeout = 30, $mode = PHP_BINARY_READ)
+    public function __construct(private Socket $socket, private int $timeout = 30, private int $mode = PHP_NORMAL_READ)
     {
-        $this->_mode = $mode;
-        $this->_socket = $socket;
-        $this->_timeout = $timeout;
-        if ($mode === PHP_BINARY_READ) {
-            trigger_error("Using binary read is deprecated and will be removed in a future release. Explicitly set $mode to PHP_NORMAL_READ to avoid this message.", E_USER_DEPRECATED);
-        }
     }
 
     /**
      * Ping clamd to see if we get a response.
      *
      * @throws ConnectionException
-     * @return bool
      */
-    public function ping()
+    public function ping(): bool
     {
-        $this->_sendCommand('PING');
+        $this->sendCommand('PING');
 
-        if ($this->_receiveResponse(true) === 'PONG') {
+        if ($this->receiveResponse(true) === 'PONG') {
             return true;
         }
 
         throw new ConnectionException('Could not ping clamd');
     }
 
-
     /**
      * Retrieve the running ClamAV version information.
-     *
-     * @return string
      */
-    public function version()
+    public function version(): string
     {
-        $this->_sendCommand('VERSION');
+        $this->sendCommand('VERSION');
 
-        return $this->_receiveResponse(true);
+        return $this->receiveResponse(true);
     }
 
     /**
      * Fetch stats for the ClamAV scan queue.
-     *
-     * @return string
      */
-    public function stats()
+    public function stats(): string
     {
-        $this->_sendCommand('STATS');
+        $this->sendCommand('STATS');
 
-        return $this->_receiveResponse(true, "END\n");
+        return $this->receiveResponse(true, "END\n");
     }
 
     /**
      * Reload the ClamAV virus definition database.
-     *
-     * @return string
      */
-    public function reload()
+    public function reload(): string
     {
-        $this->_sendCommand('RELOAD');
+        $this->sendCommand('RELOAD');
 
-        return $this->_receiveResponse();
+        return $this->receiveResponse();
     }
 
     /**
      * Shutdown clamd cleanly.
-     *
-     * @return string
      */
-    public function shutdown()
+    public function shutdown(): string
     {
-        $this->_sendCommand('SHUTDOWN');
+        $this->sendCommand('SHUTDOWN');
 
-        return $this->_receiveResponse();
+        return $this->receiveResponse();
     }
 
     /**
      * Disconnect the client.
-     *
-     * @return bool
      */
-    public function disconnect()
+    public function disconnect(): void
     {
-        return $this->_closeConnection();
+        $this->socket->close();
     }
 
     /**
      * Scan a single file.
      *
      * @param string $file The location of the file to scan.
-     *
-     * @return Result
      */
-    public function scanFile($file)
+    public function scanFile(string $file): Result
     {
-        $this->_sendCommand('SCAN ' . $file);
+        $this->sendCommand('SCAN ' . $file);
 
-        $response = $this->_receiveResponse();
+        $response = $this->receiveResponse();
 
-        return $this->_parseResponse($response);
+        return $this->parseResponse($response);
     }
 
     /**
      * Scan a file or directory recursively using multiple threads.
      *
      * @param string $file The location of the file or directory to scan.
-     *
-     * @return Result
      */
-    public function multiscanFile($file)
+    public function multiscanFile(string $file): Result
     {
-        $this->_sendCommand('MULTISCAN ' . $file);
+        $this->sendCommand('MULTISCAN ' . $file);
 
-        $response = $this->_receiveResponse();
+        $response = $this->receiveResponse();
 
-        return $this->_parseResponse($response);
+        return $this->parseResponse($response);
     }
 
     /**
      * Scan a file or directory recursively.
      *
      * @param string $file The location of the file or directory to scan.
-     *
-     * @return Result
      */
-    public function contScan($file)
+    public function contScan(string $file): Result
     {
-        $this->_sendCommand('CONTSCAN ' . $file);
+        $this->sendCommand('CONTSCAN ' . $file);
 
-        $response = $this->_receiveResponse();
+        $response = $this->receiveResponse();
 
-        return $this->_parseResponse($response);
+        return $this->parseResponse($response);
     }
 
     /**
      * Scan a local file via a stream.
      *
-     * @param string $file The location of the file to scan.
+     * @param string $file         The location of the file to scan.
      * @param int    $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
-     *
-     * @return Result
      */
-    public function scanLocalFile($file, $maxChunkSize = 1024)
+    public function scanLocalFile(string $file, int $maxChunkSize = 1024): Result
     {
-        return $this->scanStream(file_get_contents($file), $maxChunkSize);
+        $fileContent = file_get_contents($file);
+        assert($fileContent !== false);
+
+        return $this->scanStream($fileContent, $maxChunkSize);
     }
 
     /**
      * Scan a stream.
      *
-     * @param resource $stream A file stream
-     * @param int      $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
+     * @param resource    $stream       A file stream
+     * @param int<0, max> $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
      *
-     * @return Result
      * @throws InvalidArgumentException
      */
-    public function scanResourceStream($stream, $maxChunkSize = 1024)
+    public function scanResourceStream($stream, int $maxChunkSize = 1024): Result
     {
-        if (!is_resource($stream)) {
+        if (! is_resource($stream)) {
             throw new InvalidArgumentException('Passed stream is not a resource!');
         }
 
-        $this->_sendCommand("INSTREAM");
+        $this->sendCommand('INSTREAM');
 
         while ($chunk = fread($stream, $maxChunkSize)) {
             $size = pack('N', strlen($chunk));
-            $this->_socket->send($size, MSG_DONTROUTE);
-            $this->_socket->send($chunk, MSG_DONTROUTE);
+            $this->socket->send($size, MSG_DONTROUTE);
+            $this->socket->send($chunk, MSG_DONTROUTE);
         }
 
-        $this->_socket->send(pack('N', 0), MSG_DONTROUTE);
+        $this->socket->send(pack('N', 0), MSG_DONTROUTE);
 
-        $response = $this->_receiveResponse();
+        $response = $this->receiveResponse();
 
-        return $this->_parseResponse($response);
+        return $this->parseResponse($response);
     }
 
     /**
      * Scan a stream.
      *
-     * @param string $stream A file stream in string form.
+     * @param string $stream       A file stream in string form.
      * @param int    $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
-     *
-     * @return Result
      */
-    public function scanStream($stream, $maxChunkSize = 1024)
+    public function scanStream(string $stream, int $maxChunkSize = 1024): Result
     {
-        $this->_sendCommand("INSTREAM");
+        $this->sendCommand('INSTREAM');
 
         $chunksLeft = $stream;
 
         while (strlen($chunksLeft) > 0) {
-            $chunk = substr($chunksLeft, 0, $maxChunkSize);
+            $chunk      = substr($chunksLeft, 0, $maxChunkSize);
             $chunksLeft = substr($chunksLeft, $maxChunkSize);
 
             $size = pack('N', strlen($chunk));
 
-            $this->_socket->send($size, MSG_DONTROUTE);
-            $this->_socket->send($chunk, MSG_DONTROUTE);
+            $this->socket->send($size, MSG_DONTROUTE);
+            $this->socket->send($chunk, MSG_DONTROUTE);
         }
 
-        $this->_socket->send(pack('N', 0), MSG_DONTROUTE);
+        $this->socket->send(pack('N', 0), MSG_DONTROUTE);
 
-        $response = $this->_receiveResponse();
+        $response = $this->receiveResponse();
 
-        return $this->_parseResponse($response);
+        return $this->parseResponse($response);
     }
 
-    public function startSession()
+    public function startSession(): void
     {
-        $this->_inSession = true;
+        $this->inSession = true;
 
-        $this->_sendCommand('IDSESSION');
+        $this->sendCommand('IDSESSION');
     }
 
-    public function endSession()
+    public function endSession(): void
     {
-        $this->_sendCommand('END');
+        $this->sendCommand('END');
 
-        $this->_inSession = false;
+        $this->inSession = false;
     }
 
     /**
      * A wrapper to send a command to clamd.
-     *
-     * @param string $command
      */
-    private function _sendCommand($command)
+    private function sendCommand(string $command): void
     {
-        $this->_socket->send("n$command\n", MSG_DONTROUTE);
+        $this->socket->send(sprintf('n%s%s', $command, PHP_EOL), MSG_DONTROUTE);
     }
 
     /**
      * A wrapper to cleanly read a response from clamd.
      *
-     * @param bool $removeId
-     * @param string $readUntil
-     * @return string
      * @throws ConnectionException
      */
-    private function _receiveResponse($removeId = false, $readUntil = "\n")
+    private function receiveResponse(bool $removeId = false, string $readUntil = PHP_EOL): string
     {
-        $result = null;
+        $result       = '';
         $readUntilLen = strlen($readUntil);
         do {
-            if ($this->_socket->selectRead($this->_timeout)) {
-                $rt = $this->_socket->read(4096, $this->_mode);
-                if ($rt === "") {
+            if ($this->socket->selectRead($this->timeout)) {
+                $rt = $this->socket->read(4096, $this->mode);
+                if ($rt === '') {
                     break;
                 }
+
                 $result .= $rt;
-                if (strcmp(substr($result, 0 - $readUntilLen), $readUntil) == 0) {
+                if (strcmp(substr($result, 0 - $readUntilLen), $readUntil) === 0) {
                     break;
                 }
-            } else if ($this->_mode === PHP_NORMAL_READ) {
-                throw new ConnectionException("Timeout waiting to read response");
+            } elseif ($this->mode === PHP_NORMAL_READ) {
+                throw new ConnectionException('Timeout waiting to read response');
             } else {
                 break;
             }
         } while (true);
 
-        if (!$this->_inSession) {
-            $this->_closeConnection();
-        } else if ($removeId) {
-            $result = preg_replace('/^\d+: /', "", $result, 1);
+        if (! $this->inSession) {
+            $this->disconnect();
+        } elseif ($removeId) {
+            $result = preg_replace('/^\d+: /', '', $result, 1);
+            assert(is_string($result));
         }
 
         return trim($result);
     }
 
     /**
-     * Explicitly close the current socket's connection.
-     *
-     * @return bool
-     *
-     * @throws ConnectionException  If the socket fails to close.
-     */
-    private function _closeConnection()
-    {
-        try {
-            $this->_socket->close();
-
-            return true;
-        } catch (ConnectionException $e) {
-            throw $e;
-        }
-    }
-
-    /**
      * Parse the received response into a structured array ($filename, $reason, $status).
-     *
-     * @param string $response
-     *
-     * @return Result
      */
-    private function _parseResponse($response)
+    private function parseResponse(string $response): Result
     {
         $splitResponse = explode(': ', $response);
 
         $id = null;
-        if (!$this->_inSession) {
+        if (! $this->inSession) {
             $filename = $splitResponse[0];
-            $message = $splitResponse[1];
+            $message  = $splitResponse[1];
         } else {
-            $id = $splitResponse[0];
+            $id       = $splitResponse[0];
             $filename = $splitResponse[1];
-            $message = $splitResponse[2];
+            $message  = $splitResponse[2];
         }
 
         if ($message === self::RESULT_OK) {
             return new Result(self::RESULT_OK, $filename, null, $id);
         }
 
-        $parts = explode(' ', $message);
+        $parts  = explode(' ', $message);
         $status = array_pop($parts);
         $reason = implode(' ', $parts);
 

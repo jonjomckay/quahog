@@ -166,7 +166,7 @@ class Client
      * Scan a stream.
      *
      * @param resource    $stream       A file stream
-     * @param int<0, max> $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
+     * @param int<1, max> $maxChunkSize The maximum chunk size in bytes to send to clamd at a time.
      *
      * @throws InvalidArgumentException
      */

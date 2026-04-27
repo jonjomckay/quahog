@@ -13,7 +13,7 @@ jobs:
       - name: "Setup ClamAV"
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -qq clamav-daemon netcat
+          sudo apt-get install -qq clamav-daemon netcat-traditional
           sudo /etc/init.d/clamav-freshclam stop
           sudo sh -c 'echo TCPSocket 3310 >> /etc/clamav/clamd.conf'
           sudo freshclam

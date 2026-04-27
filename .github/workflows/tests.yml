@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@v6"
 
       - name: "Setup ClamAV"
         run: |
@@ -28,7 +28,7 @@ jobs:
           extensions: "mbstring, dom, sockets"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v4"
         with:
           composer-options: "--prefer-dist --no-progress --no-suggest"
 

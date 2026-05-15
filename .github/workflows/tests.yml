@@ -8,15 +8,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup ClamAV
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -qq clamav-daemon netcat
-          sudo /etc/init.d/clamav-freshclam stop
-          sudo sh -c 'echo TCPSocket 3310 >> /etc/clamav/clamd.conf'
+          sudo apt-get install -qq clamav-daemon netcat-traditional
+          # Create initial cvd files
+          sudo systemctl stop clamav-freshclam
           sudo freshclam
-          sudo /etc/init.d/clamav-daemon start
+          # Setup tcp for systemd
+          sudo mkdir -p /etc/systemd/system/clamav-daemon.socket.d/
+          sudo sh -c 'echo [Socket] >> /etc/systemd/system/clamav-daemon.socket.d/override.conf'
+          sudo sh -c 'echo ListenStream=3310 >> /etc/systemd/system/clamav-daemon.socket.d/override.conf'
+          sudo systemctl daemon-reload
+          sudo systemctl restart clamav-daemon.socket 
+          sudo systemctl restart clamav-daemon
           # Wait until ClamAV is running
           timeout 30 sh -c 'until nc -z 127.0.0.1 3310; do echo "Waiting for ClamAV" && sleep 1; done'
       - name: Setup PHP
@@ -28,7 +34,7 @@ jobs:
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
       - name: Cache composer dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
